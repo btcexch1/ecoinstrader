@@ -1,0 +1,78 @@
+<?php $__env->startSection('title'); ?>
+<?php echo Lang::get('frontend_texts.open_account'); ?>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('body'); ?>
+<div class="container">
+    <div class="content">
+        <div id="signupfrom" class="formuser">
+            <script type="text/javascript">
+             var RecaptchaOptions = {
+                theme : 'clean'
+             };
+             </script>
+            <h2><?php echo Lang::get('frontend_texts.open_account'); ?></h2>
+            <p>Open your <span style="color:green;text-transform: uppercase">Free</span> account</p>
+            <?php if( Session::get('error') ): ?>
+                <div class="notice marker-on-bottom bg-darkRed fg-white">
+                    <?php if( is_array(Session::get('error')) ): ?>
+                        <?php echo head(Session::get('error')); ?>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if( Session::get('notice') ): ?>
+                <div class="notice marker-on-bottom bg-amber fg-white"><?php echo Session::get('notice'); ?></div>
+            <?php endif; ?>
+            <form id="registerForm" method="POST" action="<?php echo e((Confide::checkAction('UserController@store')) ?: URL::to('user')); ?>" accept-charset="UTF-8">
+                <input type="hidden" name="_token" value="<?php echo e(Session::getToken()); ?>">
+                <div class="input-control text">
+                    <input minlength="2" type="text" required="" name="firstname" id="firstname" value="<?php echo e(Input::old('firstname')); ?>"  placeholder="<?php echo trans('frontend_texts.firstname'); ?>">
+                    <button class="btn-clear"></button>
+                </div>
+                <div class="input-control text">
+                    <input type="text" required="" name="lastname" id="lastname" value="<?php echo e(Input::old('lastname')); ?>" placeholder="<?php echo Lang::get('frontend_texts.lastname'); ?>"/>
+                    <button class="btn-clear"></button>
+                </div>
+                <div class="input-control text">
+                    <input type="text" name="email" id="email" required="" class="form-control" placeholder="<?php echo e(Lang::get('confide::confide.e_mail')); ?>" value="<?php echo e(Input::old('email')); ?>">
+                    <button class="btn-clear"></button>
+                </div>
+                <div class="input-control text">
+                    <input minlength="2" type="text" required="" class="form-control" placeholder="<?php echo e(Lang::get('confide::confide.username')); ?>" name="username" id="username" value="<?php echo e(Input::old('username')); ?>">
+                    <button class="btn-clear"></button>
+                </div >               
+                <input type="hidden" value="<?php if(isset($referral)): ?><?php echo $referral; ?><?php else: ?><?php echo e(Input::old('referral')); ?><?php endif; ?>" name="referral">
+                <p><?php echo Lang::get('frontend_texts.id_pass_send_to_mail'); ?></p>
+                <button type="submit" class="button primary"><?php echo Lang::get('frontend_texts.register'); ?></button>                
+            </form>
+        </div>        
+    </div>
+</div>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('script.footer'); ?>
+@parent
+<?php echo HTML::script('assets/js/jquery.validate.min.js'); ?>
+<script type="text/javascript">
+    $(document).ready(function() {
+        
+        $("#registerForm").validate({
+            rules: {
+                firstname: "required",
+                lastname: "required",
+                email: {
+                    required: true,
+                    email: true
+                },                
+                termsofservice: "required"
+            },
+            messages: {
+                firstname: "Please enter your first name.",
+                lastname: "Please enter your last name.",                
+                email: "Please enter a valid email address.",
+                termsofservice: "Please accept our TOS."
+            }
+	    });
+    });
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.main', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

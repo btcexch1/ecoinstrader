@@ -1,0 +1,61 @@
+<?php $__env->startSection('body'); ?>
+<div class="container">
+    <div class="content">
+        <div id="content-profile" class="content-body">  
+            <ul class="tabs">
+                <?php /*<li <?php if($page == 'dashboard'): ?> class="active" <?php endif; ?>><?php echo HTML::link('user/profile/dashboard', trans('user_texts.dashboard')); ?></li>
+                <li <?php if($page == ''): ?> class="active" <?php endif; ?>><?php echo HTML::link('user/profile', trans('user_texts.profile')); ?></li>
+                <li <?php if($page == 'two-factor-auth'): ?> class="active" <?php endif; ?>><?php echo HTML::link('user/profile/two-factor-auth', trans('user_texts.security')); ?></li> */ ?>
+                <li <?php if($page == 'balances'): ?> class="active" <?php endif; ?>><?php echo HTML::link('user/profile/balances', trans('user_texts.balance')); ?></li>
+                <li <?php if($page == 'deposit' || $page == 'deposits'): ?> class="active" <?php endif; ?>><?php echo HTML::link('user/profile/deposits', trans('user_texts.deposits')); ?></li>
+                <li <?php if($page == 'withdrawals' || $page=='withdraw'): ?> class="active" <?php endif; ?>><?php echo HTML::link('user/profile/withdrawals', trans('user_texts.withdrawals')); ?></li>
+                <li <?php if($page == 'orders'): ?> class="active" <?php endif; ?>><?php echo HTML::link('user/profile/orders', trans('user_texts.orders')); ?></li>
+                <li <?php if($page == 'trade-history'): ?> class="active" <?php endif; ?>><?php echo HTML::link('user/profile/trade-history', trans('user_texts.trade_history')); ?></li>
+                <li <?php if($page == 'viewtranferout'): ?> class="active" <?php endif; ?>><?php echo HTML::link('user/profile/viewtranferout', trans('user_texts.view_transfer_out')); ?></li>
+                <li <?php if($page == 'viewtranferin'): ?> class="active" <?php endif; ?>><?php echo HTML::link('user/profile/viewtranferin', trans('user_texts.view_transfer_in')); ?></li>        
+            </ul>      
+           
+            <div id='profile-content' class="tab-content">
+                <!-- Information -->
+                <?php if($page == ''): ?>
+                    <?php echo $__env->make('user.edit_profile', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'two-factor-auth'): ?>
+                    <?php echo $__env->make('user.formtwofactor', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'balances'): ?>
+                    <?php echo $__env->make('user.balances', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'deposits'): ?>
+                    <?php echo $__env->make('user.deposits', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'withdrawals'): ?>
+                    <?php echo $__env->make('user.withdrawals', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'orders'): ?>
+                    <?php echo $__env->make('user.orders', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'trade-history'): ?>
+                    <?php echo $__env->make('user.tradehistory', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'deposit'): ?>
+                    <?php echo $__env->make('user.deposit', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'withdraw'): ?>
+                    <?php echo $__env->make('user.withdraw', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'dashboard'): ?>
+                    <?php echo $__env->make('user.dashboard', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'transfercoin'): ?>
+                    <?php echo $__env->make('user.transfercoin', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'viewtranferout'): ?>
+                    <?php echo $__env->make('user.transfers_out', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'viewtranferin'): ?>
+                    <?php echo $__env->make('user.transfers_in', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'ecoinstraderpoint'): ?>
+                    <?php echo $__env->make('user.info_points', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php elseif($page == 'verify'): ?>
+                    <?php echo $__env->make('user.verify_account', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                <?php endif; ?>
+                </div>
+        </div>
+    </div>
+</div>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('script.footer'); ?>
+@parent
+<script src="<?php echo asset('assets/vendors/metro-ui/js/metro-dropdown.js'); ?>"></script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.main', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

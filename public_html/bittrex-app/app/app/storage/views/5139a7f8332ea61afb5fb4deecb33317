@@ -1,0 +1,53 @@
+<?php $__env->startSection('content'); ?>
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<h2><?php echo trans('admin_texts.login_histories'); ?></h2>
+<?php
+$query_string = '';
+foreach (Request::query() as $key => $value) {
+    $query_string .= $key."=".$value."&";
+}
+$query_string = trim($query_string,'&');
+?>
+<form class="form-inline" method="get" action="<?php echo e(URL::to('/admin/manage/login-histories')); ?>">
+    <label><?php echo e(trans('admin_texts.user')); ?></label>        
+    <select id="pair" style="margin-right: 20px;" name="user">
+        <option value="" <?php if(isset($_GET['username']) == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+        <?php foreach($users as $key=> $user): ?>
+            <option value="<?php echo $user->id; ?>" <?php if(isset($_GET['user']) && $_GET['user']==$user->id): ?> selected <?php endif; ?>><?php echo $user->username; ?></option>
+        <?php endforeach; ?>
+    </select>	
+	<button type="submit" class="btn btn-primary" name="do_filter"><?php echo trans('texts.filter'); ?></button>
+</form>
+<div id="messages"></div>
+<table class="table table-striped" id="list-fees">
+	<tr>	 	
+	 	<th><?php echo trans('admin_texts.no'); ?></th>
+	 	<th><?php echo e(trans('admin_texts.username')); ?></th>
+	 	<th><?php echo trans('admin_texts.ip_address'); ?></th>	 	
+	 	<th><?php echo trans('admin_texts.date'); ?></th>
+	</tr> 
+	<?php $active = array('active','partly filled'); ?>
+        <?php foreach($login_histories as $key=>$login_history): ?>
+            <tr>
+            	<td><?php echo $key+1; ?></td>
+            	<td><?php echo $login_history->username; ?></td>
+                <td><?php echo $login_history->ip_address; ?></td>
+                <td><?php echo $login_history->date; ?></td>
+               
+            </tr>
+        <?php endforeach; ?> 
+</table>
+<div id="pager"></div>
+<script type='text/javascript'>
+    var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){
+        	return "<?php echo URL::to('admin/manage/login-histories'); ?>"+'/'+page+'<?php echo "?".$query_string ?>'; 
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

@@ -1,0 +1,63 @@
+<?php $__env->startSection('content'); ?>	
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<h2><?php echo trans('admin_texts.all_'.$type); ?></h2>
+<?php if( is_array(Session::get('error')) ): ?>
+        <div class="alert alert-error"><?php echo head(Session::get('error')); ?></div>
+    <?php elseif( Session::get('error') ): ?>
+      <div class="alert alert-error"><?php echo e(Session::get('error')); ?></div>
+    <?php endif; ?>
+    <?php if( Session::get('success') ): ?>
+      <div class="alert alert-success"><?php echo e(Session::get('success')); ?></div>
+    <?php endif; ?>
+
+    <?php if( Session::get('notice') ): ?>
+          <div class="alert"><?php echo e(Session::get('notice')); ?></div>
+    <?php endif; ?>
+<div><a href="<?php echo URL::to('admin/content/add-'.$type); ?>"><?php echo trans('admin_texts.add'); ?> <?php echo $type; ?></a></div>
+<table class="table table-striped" id="list-fees">
+	<tr>
+	 	<th>ID</th>
+	 	<th><?php echo trans('admin_texts.title'); ?></th>	 	
+	 	<th><?php echo trans('admin_texts.action'); ?></th>
+	</tr> 	
+	<?php foreach($posts as $post): ?>
+		<tr><td><?php echo $post->id; ?></td><td><a href="<?php echo URL::to('post'); ?>/<?php echo $post->permalink; ?>" target="_blank"><?php echo $post->title; ?></a></td><td><a href="<?php echo URL::to('admin/edit-post'); ?>/<?php echo $post->id; ?>" class="edit_page"><?php echo trans('admin_texts.edit'); ?></a>  | <a href="javascript:void()" onclick="deletePost(<?php echo $post->id; ?>)" class="delete_page"><?php echo trans('admin_texts.delete'); ?></a></td></tr>
+	<?php endforeach; ?>
+</table>
+<div id="pager"></div>
+<div id="messageModal" class="modal hide fade" tabindex="-1" role="dialog">     
+    <div class="modal-body">        
+    </div>
+    <div class="modal-footer">
+        <button class="btn close-popup" data-dismiss="modal"><?php echo e(trans('texts.close')); ?></button>
+    </div>
+</div>
+<script type='text/javascript'>
+function deletePost(post_id){
+    $.post('<?php echo action('Admin_SettingController@deletePost')?>', {isAjax: 1, post_id: post_id }, function(response){
+        var obj = $.parseJSON(response);
+        console.log('obj: ',obj);
+        if(obj.status == 'success'){
+            $('#messageModal .modal-body').html('<p style="color:#008B5D; font-weight:bold;text-align:center;">'+obj.message+'</p>');            
+            $('#messageModal').on('hidden.bs.modal', function (e) {              
+              location.reload();
+            });
+        }else{
+            $('#messageModal .modal-body').html('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+        }
+        $('#messageModal').modal({show:true, keyboard:false}); 
+    });
+    return false;
+}
+    var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){
+        	return "<?php echo URL::to('admin/content/all-news'); ?>"+'/'+page; 
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

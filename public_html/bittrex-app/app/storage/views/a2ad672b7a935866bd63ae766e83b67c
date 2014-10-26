@@ -1,0 +1,26 @@
+<!-- Trade History -->
+
+<?php $__env->startSection('title'); ?>
+<?php echo e(trans('texts.lastest_news')); ?>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('body'); ?>
+<div class="container">
+    <div class="content">  
+        <div id="allnews" class="content-body">            
+          <h3><?php echo e(trans('texts.lastest_news')); ?></h3>          
+            <table class="table striped hovered">
+                <?php foreach($news as $new): ?>
+                <tr>
+                    <td><?php echo date('Y-m-d',strtotime($new->created_at)); ?></td>
+                    <td><?php echo HTML::link('/post/'.$new->permalink, $new->title); ?></td>
+                </tr>
+                <?php endforeach; ?>             
+            </table>         
+        </div>
+    </div>
+</div>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('script.footer'); ?>
+@parent
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.main', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

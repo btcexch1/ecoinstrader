@@ -1,0 +1,157 @@
+<?php $__env->startSection('content'); ?>
+<h2>Edit user</h2>
+	<?php if( is_array(Session::get('error')) ): ?>
+        <div class="alert alert-error"><?php echo head(Session::get('error')); ?></div>
+	<?php elseif( Session::get('error') ): ?>
+      <div class="alert alert-error"><?php echo e(Session::get('error')); ?></div>
+	<?php endif; ?>
+	<?php if( Session::get('success') ): ?>
+      <div class="alert alert-success"><?php echo e(Session::get('success')); ?></div>
+	<?php endif; ?>
+
+	<?php if( Session::get('notice') ): ?>
+	      <div class="alert"><?php echo e(Session::get('notice')); ?></div>
+	<?php endif; ?>
+<form class="form-horizontal" role="form" id="edit_user" method="POST" action="<?php echo e(Confide::checkAction('Admin_SettingController@doEditUSer') ?: URL::to('/admin/edit-user')); ?>" autocomplete=off>
+	<input type="hidden" name="_token" value="<?php echo e(Session::getToken()); ?>">
+	<div class="form-group">
+	    <label for="inputEmail3" class="col-sm-2 control-label"><?php echo trans('admin_texts.firstname'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input type="text" class="form-control" name="firstname" id="firstname" value="<?php echo e($user->firstname); ?>">
+			</div>	      	      
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputEmail3" class="col-sm-2 control-label"><?php echo trans('admin_texts.lastname'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input type="text" class="form-control" name="lastname" id="lastname" value="<?php echo e($user->lastname); ?>">
+			</div>	      	      
+	    </div>
+	</div>	
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo e(Lang::get('confide::confide.e_mail')); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input type="text" name="email" id="email" required="" class="form-control" placeholder="<?php echo e(Lang::get('confide::confide.e_mail')); ?>" value="<?php echo e($user->email); ?>">
+			</div>	      
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo e(Lang::get('confide::confide.username')); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input minlength="2" type="text" required="" class="form-control" placeholder="<?php echo e(Lang::get('confide::confide.username')); ?>" name="username" id="username" value="<?php echo e($user->username); ?>" readonly>			  
+			</div>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo e(Lang::get('confide::confide.password')); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			 <input type="password" name="password" id="password" class="form-control" placeholder="<?php echo e(Lang::get('confide::confide.password')); ?>">		  
+			</div>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label">Authy</label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input minlength="2" type="text" class="form-control" placeholder="Authy" name="username" id="username" value="<?php echo e($user->authy); ?>">			  
+			</div>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo e(Lang::get('confide::confide.password_confirmation')); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input class="form-control" placeholder="<?php echo e(Lang::get('confide::confide.password_confirmation')); ?>" type="password" name="password_confirmation" id="password_confirmation">		  
+			</div>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <div class="col-sm-offset-2 col-sm-10">	    	
+		      <div class="checkbox">
+		        <label>
+		          <input type="checkbox" id="confirmed" name="confirmed" value="1" <?php if($user->confirmed): ?> checked <?php endif; ?>> Confirmed
+		        </label>
+		      </div>		        
+	    </div>
+  	</div>
+  	<div class="form-group">
+	    <div class="col-sm-offset-2 col-sm-10">	    	
+		      <div class="checkbox">
+		        <label>
+		          <input type="checkbox" id="banned" name="banned" value="1" <?php if($user->banned): ?> checked <?php endif; ?>> Banned
+		        </label>
+		      </div>		        
+	    </div>
+  	</div>
+	<h3>Roles</h3>
+	<div class="form-group">
+	    <div class="col-sm-offset-2 col-sm-10">
+	    	<?php foreach($roles as $role): ?>
+		      <div class="checkbox">
+		        <label>
+		          <input type="checkbox" id="site_mode" name="roles[]" value="<?php echo $role['name']; ?>" <?php if($user->hasRole($role['name'])): ?> checked <?php endif; ?>> <?php echo $role['name']; ?>
+		        </label>
+		      </div>
+		    <?php endforeach; ?>	       
+	    </div>
+  	</div>
+	<div class="form-group">
+		<input type="hidden" class="form-control" id="user_id" value="<?php echo $user->id; ?>" name="user_id">
+	    <div class="col-sm-offset-2 col-sm-10">
+	      <button type="submit" class="btn btn-primary" id="do_edit"><?php echo trans('admin_texts.save'); ?></button>
+	      <a href="<?php echo URL::previous(); ?>"><button type="button" class="btn btn-default"><?php echo trans('admin_texts.back'); ?></button></a>
+	    </div>
+	</div>
+</form>
+<div id="messages"></div>
+<div id="messageModal" class="modal hide fade" tabindex="-1" role="dialog">		
+	<div class="modal-body">		
+	</div>
+	<div class="modal-footer">
+		<button class="btn close-popup" data-dismiss="modal"><?php echo e(trans('texts.close')); ?></button>
+	</div>
+</div>
+<?php echo HTML::script('assets/js/jquery.validate.min.js'); ?>
+<script type="text/javascript">
+    $(document).ready(function() {    	
+        $("#edit_user").validate({
+            rules: {
+                firstname: "required",  
+                lastname: "required",                
+                password: {
+                    minlength: 8
+                },
+                password_confirmation: {
+                    minlength: 8,
+                    equalTo: "#password"
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+            },
+            messages: {
+                firstname: "Please enter your first name.", 
+                lastname: "Please enter your last name.",               
+                password: {
+                    required: "Please provide a password.",
+                    minlength: "Your password must be at least 8 characters long."
+                },
+                confirm_password: {
+                    required: "Please provide a password.",
+                    minlength: "Your password must be at least 8 characters long.",
+                    equalTo: "Please enter the same password as above."
+                },
+                email: "Please enter a valid email address.",
+            }
+	});
+
+   });
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

@@ -1,0 +1,71 @@
+<nav class="navigation-bar dark fixed-top nav-header">
+    <div class="navigation-bar-content container">
+        <a href="<?=url('/', $parameters = array(), $secure = null);?>" class="element"><img class="img-logo" src="<?php echo asset('assets/img/bitcoin-logo.png'); ?>"/><span class="bold blue">Ecoins</span><span class="bold">Trader</span></a>
+        <span class="element-divider"></span>
+
+        <a class="pull-menu" href="#"></a>
+        <?php if( Auth::guest() ): ?> 
+        <ul class="element-menu place-right small-menu-header"> 
+            <?php if(!empty($locales)): ?>            
+            <li>
+                <a href="#" class="dropdown-toggle text-small" data-toggle="dropdown"><?php echo trans('frontend_texts.select_language'); ?></a>                
+                <ul class="dropdown-menu" data-role="dropdown">
+                  <?php foreach($locales as $locale): ?>
+                    <li <?php if(Session::get( 'locale' )==$locale): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('locale/'.$locale, trans('frontend_texts.'.$locale),array('class' => 'text-small')); ?></li>
+                  <?php endforeach; ?>
+                </ul>
+            </li>
+            <?php endif; ?>                 
+            <li <?php if(Request::is('register')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><a href="<?=url('/', $parameters = array(), $secure = null);?>/user/register" class="navitem text-small <?php echo Request::is('register')?'active':''; ?>"><?php echo trans('user_texts.register'); ?></a></li>
+            <li <?php if(Request::is('login')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><a href="<?=url('/', $parameters = array(), $secure = null);?>/login" class="navitem text-small <?php echo Request::is('login')?'active':''; ?>"><?php echo trans('user_texts.login'); ?></a></li>
+            <li><a href="<?=url('/social/facebook', $parameters = array(), $secure = null);?>" class="navitem text-small"><img width="20px" src="<?php echo asset('assets/img/face_login.png'); ?>"></a></li>
+            <li><a href="<?=url('/social/google', $parameters = array(), $secure = null);?>" class="navitem text-small"><img width="20px" src="<?php echo asset('assets/img/google_login.png'); ?>"></a></li>
+            <li><a href="" class="text-small"><i class="icon-help-2"></i> <?php echo Lang::get('frontend_texts.help'); ?></a></li>
+        </ul>
+        <?php else: ?>
+        <ul class="element-menu place-right small-menu-header button-dropdown">
+            <li>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo trans('user_texts.hello'); ?> <?php echo Confide::user()->firstname.' '.Confide::user()->lastname; ?> </a>
+                <ul class="dropdown-menu" data-role="dropdown">
+                  <li <?php if(Request::is('user/profile/dashboard')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('user/profile/dashboard', trans('user_texts.dashboard')); ?></li>
+                  <li <?php if(Request::is('user/profile/verify')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('user/profile/verify', trans('user_texts.verify_account')); ?></li>
+                  <li <?php if(Request::is('user/profile')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('user/profile', trans('user_texts.profile')); ?></li>
+                  <li <?php if(Request::is('user/profile/two-factor-auth')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('user/profile/two-factor-auth', trans('user_texts.security')); ?></li>
+                  <li <?php if(Request::is('user/profile/balances')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('user/profile/balances', trans('user_texts.balance')); ?></li>
+                  <li <?php if(Request::is('user/profile/deposits')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('user/profile/deposits', trans('user_texts.deposits')); ?></li>
+                  <li <?php if(Request::is('user/profile/withdrawals')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('user/profile/withdrawals', trans('user_texts.withdrawals')); ?></li>
+                  <li <?php if(Request::is('user/profile/orders')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('user/profile/orders', trans('user_texts.orders')); ?></li>
+                  <li <?php if(Request::is('user/profile/trade-history')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('user/profile/trade-history', trans('user_texts.trade_history')); ?></li>
+                  <li><?php echo HTML::link('user/logout', trans('user_texts.logout')); ?></li>
+                </ul>
+            </li> 
+            <?php if(!empty($locales)): ?>            
+            <li>
+                <a href="#" class="dropdown-toggle text-small" data-toggle="dropdown"><?php echo trans('frontend_texts.select_language'); ?></a>                
+                <ul class="dropdown-menu" data-role="dropdown">
+                  <?php foreach($locales as $locale): ?>
+                    <li <?php if(Session::get( 'locale' )==$locale): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('locale/'.$locale, trans('frontend_texts.'.$locale),array('class' => 'text-small')); ?></li>
+                  <?php endforeach; ?>
+                </ul>
+            </li>
+            <?php endif; ?>   
+            <li <?php if(Request::is('help')): ?> <?php echo 'class="active"'; ?> <?php endif; ?> ><a href="" class="text-small"><i class="icon-help-2"></i> <?php echo Lang::get('frontend_texts.help'); ?></a></li>            
+        </ul>
+        <?php endif; ?>
+        <ul class="element-menu place-right meta-menu">
+            <li><a href="#" class="text-small">Bitcoin: <span class="text-small blue">$<?php echo $btc_usd; ?></span></a></li>
+            <li><a href="#" class="text-small">Litecoin: <span class="blue">$<?php echo $ltc_usd; ?></span></a></li>
+        </ul>
+        <ul class="element-menu place-right">
+            <li <?php if(Request::is('/')): ?> <?php echo 'class="active"'; ?> <?php endif; ?> ><a href="<?=url('/', $parameters = array(), $secure = null);?>"><?php echo Lang::get('frontend_texts.home'); ?></a></li>
+            <li <?php if(Request::is('page/voting')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('page/voting', trans('user_texts.voting'), array('class' => Request::is('page/voting')?'active':'')); ?></li>
+            <li <?php if(Request::is('page/fees')): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('page/fees', trans('user_texts.fees'), array('class' => Request::is('page/fees')?'active':'')); ?></li>            
+            <?php if(isset($menu_pages)): ?>
+              <?php foreach($menu_pages as $menu_page): ?>
+              <li <?php if(Request::is('post/'.$menu_page->permalink)): ?> <?php echo 'class="active"'; ?> <?php endif; ?>><?php echo HTML::link('post/'.$menu_page->permalink, $menu_page->title, array('class' => Request::is('post/'.$menu_page->permalink)?'active':'')); ?></li>
+              <?php endforeach; ?>
+            <?php endif; ?>                
+        </ul>  
+   
+    </div>
+</nav>

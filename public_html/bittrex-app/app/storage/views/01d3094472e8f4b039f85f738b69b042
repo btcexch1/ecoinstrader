@@ -1,0 +1,36 @@
+<?php $__env->startSection('content'); ?>	
+<?php echo HTML::script('assets/js/colorPicker.js'); ?>
+<h2><?php echo trans('admin_texts.fee_withdraw'); ?></h2>
+<?php if( Session::get('error') ): ?>
+  <div class="alert alert-error"><?php echo e(Session::get('error')); ?></div>
+<?php endif; ?>
+<?php if( Session::get('success') ): ?>
+  <div class="alert alert-success"><?php echo e(Session::get('success')); ?></div>
+<?php endif; ?>
+
+<?php if( Session::get('notice') ): ?>
+      <div class="alert"><?php echo e(Session::get('notice')); ?></div>
+<?php endif; ?>
+<form class="form-inline" role="form" id="filter_time_fee" method="get" action="<?php echo Request::url(); ?>">
+	<label><?php echo e(trans('admin_texts.view_in')); ?></label>
+	<select name="filter_time">
+		<option value="" <?php if(isset($_GET['filter_time'])  && $_GET['filter_time'] == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+	  	<option value="hourly" <?php if(isset($_GET['filter_time'])  && $_GET['filter_time'] == 'hourly'): ?> selected <?php endif; ?>><?php echo trans('admin_texts.hourly'); ?></option>
+	  	<option value="daily" <?php if(isset($_GET['filter_time'])  && $_GET['filter_time'] == 'daily'): ?> selected <?php endif; ?>><?php echo trans('admin_texts.daily'); ?></option>
+	  	<option value="weekly" <?php if(isset($_GET['filter_time'])  && $_GET['filter_time'] == 'weekly'): ?> selected <?php endif; ?>><?php echo trans('admin_texts.weekly'); ?></option>
+	  	<option value="monthly" <?php if(isset($_GET['filter_time'])  && $_GET['filter_time'] == 'monthly'): ?> selected <?php endif; ?>><?php echo trans('admin_texts.monthly'); ?></option>
+	</select>
+	<button type="submit" class="btn btn-primary" name="do_filter"><?php echo trans('texts.filter'); ?></button>
+</form>
+<table class="table table-striped" id="list-fees">
+	<tr>
+	 	<th><?php echo trans('admin_texts.coin_code'); ?></th>
+	 	<th><?php echo trans('admin_texts.coin_name'); ?></th>
+	 	<th><?php echo trans('admin_texts.total_fees'); ?></th>
+	</tr> 	
+	<?php foreach($withdraw_fees as $withdraw_fee): ?>
+	<tr><td><strong><?php echo $withdraw_fee->type; ?></strong></td><td><?php echo $withdraw_fee->name; ?></td><td><?php echo sprintf('%.8f',$withdraw_fee->total_fee); ?> <?php echo $withdraw_fee->type; ?></td></tr>
+	<?php endforeach; ?>
+</table>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

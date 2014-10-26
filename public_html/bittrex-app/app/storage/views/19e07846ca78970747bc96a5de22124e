@@ -1,0 +1,239 @@
+<?php $__env->startSection('content'); ?>	
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<h2><?php echo trans('admin_texts.manage_users'); ?></h2>
+<a href="javascript:void()" id="add_user_link"><?php echo trans('admin_texts.add_user'); ?></a>
+	<?php if( is_array(Session::get('error')) ): ?>
+        <div class="alert alert-error"><?php echo head(Session::get('error')); ?></div>
+	<?php elseif( Session::get('error') ): ?>
+      <div class="alert alert-error"><?php echo e(Session::get('error')); ?></div>
+	<?php endif; ?>
+	<?php if( Session::get('success') ): ?>
+      <div class="alert alert-success"><?php echo e(Session::get('success')); ?></div>
+	<?php endif; ?>
+
+	<?php if( Session::get('notice') ): ?>
+	      <div class="alert"><?php echo e(Session::get('notice')); ?></div>
+	<?php endif; ?>
+<form class="form-horizontal" role="form" id="add_new_user" method="POST" action="<?php echo e(Confide::checkAction('Admin_SettingController@addNewUser') ?: URL::to('/admin/add-user')); ?>">
+	<input type="hidden" name="_token" value="<?php echo e(Session::getToken()); ?>">
+	<div class="form-group">
+	    <label for="inputEmail3" class="col-sm-2 control-label"><?php echo trans('admin_texts.firstname'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input type="text" class="form-control" name="firstname" id="firstname" value="<?php echo e(Input::old('firstname')); ?>">
+			</div>	      	      
+	    </div>
+	</div>	
+	<div class="form-group">
+	    <label for="inputEmail3" class="col-sm-2 control-label"><?php echo trans('admin_texts.lastname'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input type="text" class="form-control" name="lastname" id="lastname" value="<?php echo e(Input::old('lastname')); ?>">
+			</div>	      	      
+	    </div>
+	</div>	
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo e(Lang::get('confide::confide.e_mail')); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input type="text" name="email" id="email" required="" class="form-control" placeholder="<?php echo e(Lang::get('confide::confide.e_mail')); ?>" value="<?php echo e(Input::old('email')); ?>">
+			</div>	      
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo e(Lang::get('confide::confide.username')); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input minlength="2" type="text" required="" class="form-control" placeholder="<?php echo e(Lang::get('confide::confide.username')); ?>" name="username" id="username" value="<?php echo e(Input::old('username')); ?>">			  
+			</div>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo e(Lang::get('confide::confide.password')); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			 <input type="password" name="password" id="password" class="form-control" placeholder="<?php echo e(Lang::get('confide::confide.password')); ?>">		  
+			</div>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo e(Lang::get('confide::confide.password_confirmation')); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input class="form-control" placeholder="<?php echo e(Lang::get('confide::confide.password_confirmation')); ?>" type="password" name="password_confirmation" id="password_confirmation">		  
+			</div>
+	    </div>
+	</div>
+	<h3>Roles</h3>
+	<div class="form-group">
+	    <div class="col-sm-offset-2 col-sm-10">
+	    	<?php foreach($roles as $role): ?>
+		      <div class="checkbox">
+		        <label>
+		          <input type="checkbox" id="site_mode" name="roles[]" value="<?php echo $role->name; ?>"> <?php echo $role->name; ?>
+		        </label>
+		      </div>
+		    <?php endforeach; ?>	       
+	    </div>
+  	</div>
+	<div class="form-group">
+		<input type="hidden" class="form-control" id="market_id" name="market_id">
+	    <div class="col-sm-offset-2 col-sm-10">
+	      <button type="submit" class="btn btn-primary" id="do_edit">Add</button>
+	    </div>
+	</div>
+</form>
+<div id="messages"></div>
+<table class="table table-striped" id="list-fees">
+	<tr>
+	 	<th>ID</th>
+	 	<th><?php echo trans('admin_texts.name'); ?></th>
+	 	<th>Username</th>
+	 	<th><?php echo trans('admin_texts.email'); ?></th>	
+	 	<th><?php echo trans('admin_texts.role'); ?></th>
+	 	<th><?php echo trans('admin_texts.banned'); ?></th>
+	 	<th><?php echo trans('admin_texts.verify'); ?></th>
+	 	<th><?php echo trans('admin_texts.confirm'); ?></th>	 	
+	 	<th><?php echo trans('admin_texts.action'); ?></th>
+	</tr> 	
+	<?php foreach($users as $user): ?>
+	<tr><td><?php echo $user['id']; ?></td><td><?php echo $user['firstname']; ?> <?php echo $user['lastname']; ?></td><td><?php echo $user['username']; ?></td><td><?php echo $user['email']; ?></td>
+		<td>
+			<?php $i=1; ?>
+			<?php foreach($user['roles'] as $role): ?>
+				<?php if($i==1): ?>
+				<?php echo $role['name']; ?>
+				<?php else: ?>
+					, <?php echo $role['name']; ?>
+				<?php endif; ?>
+				<?php $i++; ?>
+			<?php endforeach; ?>
+		</td>		
+		<?php if($user['banned']): ?>
+			<td class="status">
+				<?php echo Lang::get('admin_texts.banned'); ?>
+				<button id="do_edit" class="btn btn-primary ban_user" type="button" onclick="banUser(<?php echo $user['id']; ?>,0)"><?php echo trans('admin_texts.remove_ban_user'); ?></button>
+			</td>
+		<?php else: ?>
+			<td>
+				<?php echo Lang::get('admin_texts.active'); ?>
+				<button id="do_edit" class="btn btn-primary ban_user" type="button" onclick="banUser(<?php echo $user['id']; ?>,1)"><?php echo trans('admin_texts.ban_user'); ?></button>				
+			</td>
+		<?php endif; ?>
+		
+		<?php if($user['verified']): ?>
+			<td><?php echo Lang::get('admin_texts.verified'); ?>
+		<?php else: ?>
+			<td class="status"><?php echo Lang::get('admin_texts.unverified'); ?>
+		<?php endif; ?>
+			<a href="<?php echo URL::to('admin/verify-user'); ?>/<?php echo $user['id']; ?>" class="edit_page"><button id="do_edit" class="btn btn-primary" type="button"><?php echo trans('admin_texts.verify_user'); ?></button></a>
+		</td>
+		<?php if($user['confirmed']): ?>
+			<td><?php echo Lang::get('admin_texts.confirmed'); ?></td>
+		<?php else: ?>
+			<td class="status"><?php echo Lang::get('admin_texts.unconfirmed'); ?></td>
+		<?php endif; ?>		
+		<td><a href="<?php echo URL::to('admin/edit-user'); ?>/<?php echo $user['id']; ?>" class="edit_page"><?php echo trans('admin_texts.edit'); ?></a>  | <a href="javascript:void();" onclick="deleteUser(<?php echo $user['id']; ?>)" class="delete_page"><?php echo trans('admin_texts.delete'); ?></a></td>
+	</tr>
+	<?php endforeach; ?>
+	
+</table>
+<div id="pager"></div>
+<div id="messageModal" class="modal hide fade" tabindex="-1" role="dialog">		
+	<div class="modal-body">		
+	</div>
+	<div class="modal-footer">
+		<button class="btn close-popup" data-dismiss="modal"><?php echo e(trans('texts.close')); ?></button>
+	</div>
+</div>
+<?php echo HTML::script('assets/js/jquery.validate.min.js'); ?>
+<script type="text/javascript">
+function deleteUser(user_id){
+	var r = confirm("<?php echo Lang::get('admin_texts.warning_delete_user') ?>");
+	if (r == true) {
+		$.post('<?php echo action('Admin_SettingController@deleteUSer')?>', {isAjax: 1, user_id: user_id }, function(response){
+	       	var obj = $.parseJSON(response);
+		    console.log('obj: ',obj);
+		    if(obj.status == 'success'){
+	            $('#messageModal .modal-body').html('<p style="color:#008B5D; font-weight:bold;text-align:center;">'+obj.message+'</p>');            
+	            $('#messageModal').on('hidden.bs.modal', function (e) {              
+	              location.reload();
+	            });
+	        }else{
+	            $('#messageModal .modal-body').html('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+	        }
+	        $('#messageModal').modal({show:true, keyboard:false}); 
+	    });
+	}
+    return false;
+}
+function banUser(user_id,status){
+	$.post('<?php echo action('Admin_SettingController@banUSer')?>', {isAjax: 1, user_id: user_id, status:status }, function(response){
+       	var obj = $.parseJSON(response);
+	    console.log('obj: ',obj);
+	    if(obj.status == 'success'){
+            $('#messageModal .modal-body').html('<p style="color:#008B5D; font-weight:bold;text-align:center;">'+obj.message+'</p>');            
+            $('#messageModal').on('hidden.bs.modal', function (e) {              
+              location.reload();
+            });
+        }else{
+            $('#messageModal .modal-body').html('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+        }
+        $('#messageModal').modal({show:true, keyboard:false}); 
+    });
+    return false;
+}
+    $(document).ready(function() {
+    	$('#add_new_user').hide();
+        $('#add_user_link').click(function(event) {
+        	$('#add_new_user').toggle("slow");
+        });
+        $("#add_new_user").validate({
+            rules: {
+                firstname: "required",  
+                lastname: "required",                
+                password: {
+                    required: true,
+                    minlength: 8
+                },
+                password_confirmation: {
+                    required: true,
+                    minlength: 8,
+                    equalTo: "#password"
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+            },
+            messages: {
+                firstname: "Please enter your first name.", 
+                lastname: "Please enter your last name.",              
+                password: {
+                    required: "Please provide a password.",
+                    minlength: "Your password must be at least 8 characters long."
+                },
+                confirm_password: {
+                    required: "Please provide a password.",
+                    minlength: "Your password must be at least 8 characters long.",
+                    equalTo: "Please enter the same password as above."
+                },
+                email: "Please enter a valid email address.",
+            }
+	});
+
+   });
+</script>
+<script type='text/javascript'>
+    var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){
+        	return "<?php echo URL::to('admin/manage/users'); ?>"+'/'+page;
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

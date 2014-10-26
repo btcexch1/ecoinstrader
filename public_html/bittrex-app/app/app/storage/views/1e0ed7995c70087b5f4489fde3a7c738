@@ -1,0 +1,133 @@
+<!-- Security -->
+<?php $__env->startSection('title'); ?>
+<?php echo e(trans('texts.coin_withdrawals')); ?>
+<?php $__env->stopSection(); ?>
+<div id="coin_deposits">
+    <h2><?php echo e(trans('texts.coin_withdrawals')); ?> <?php if(isset($current_coin)): ?> <?php echo ' - '.$current_coin; ?> <?php endif; ?></h2> 
+    <?php if( Session::get('error') ): ?>
+        <div class="alert alert-error alert-danger">
+        	<button type="button" class="close" data-dismiss="alert">×</button>
+            <?php if( is_array(Session::get('error')) ): ?>
+                <?php echo head(Session::get('error')); ?>
+            <?php else: ?>
+                <?php echo Session::get('error'); ?>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if( Session::get('notice') ): ?>
+        <div class="alert alert-success">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <?php echo Session::get('notice'); ?>
+        </div>
+    <?php endif; ?>     
+	Below is a list of withdrawals that you have made.
+	<br><br>
+	<span class="text-high">To make a new withdrawal, please visit the <?php echo HTML::link('user/profile/balances', trans('user_texts.balance')); ?> page and select the Withdraw option under the actions menu for the coin.</span>
+	<br><br>
+	<form class="form-inline" method="POST" action="<?php echo Request::url(); ?>">
+        <?php if($filter==''): ?>
+        <div class="input-control text size1" data-role="input-control">
+          <label><?php echo e(trans('texts.coin')); ?></label>  
+        </div>
+        <div class="input-control select size2" data-role="input-control">
+            <select id="pair" style="margin-right: 20px;" name="wallet">
+                <option value="" selected="selected"><?php echo trans('texts.all'); ?></option>
+                <?php foreach($wallets as $key=> $wallet): ?>
+                    <option value="<?php echo $wallet['id']; ?>"><?php echo $wallet->type; ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <?php endif; ?>
+        <div class="input-control text size1" data-role="input-control">
+          <label><?php echo e(trans('texts.type')); ?></label>
+        </div>
+        <div class="input-control select size2" data-role="input-control">
+           <select id="type" name="status" style="margin-right: 20px;">
+              <option value="" selected="selected"><?php echo trans('texts.all'); ?></option>
+              <option value="0"><?php echo trans('texts.pending'); ?></option>
+              <option value="1"><?php echo trans('texts.complete'); ?></option>
+          </select> 
+        </div>
+        <div class="input-control text size1" data-role="input-control">
+          <button type="submit" class="btn btn-primary" name="do_filter"><?php echo trans('texts.filter'); ?></button>
+        </div>
+    </form>    
+    <br>
+	<table class="table striped hovered">
+        <thead>
+	        <tr>
+	            <th><?php echo e(trans('texts.date')); ?></th>
+	            <th><?php echo e(trans('texts.coin')); ?></th>
+	            <th><?php echo e(trans('texts.amount')); ?></th>
+	            <th><?php echo e(trans('texts.fee')); ?></th>
+	            <th><?php echo e(trans('texts.receiving_address')); ?></th>
+	            <!-- <th><?php echo e(trans('texts.confirmations')); ?></th> -->
+	            <th><?php echo e(trans('texts.status')); ?></th>
+                <th><?php echo e(trans('texts.action')); ?></th>	            
+	        </tr>
+        </thead>
+        <tbody>
+	        <?php foreach($withdrawals as $withdrawal): ?>
+	        	<tr>
+	        		<td><?php echo $withdrawal->created_at; ?></td>
+	        		<td><?php echo $withdrawal->type; ?></td>
+	        		<td><?php echo sprintf('%.8f',$withdrawal->amount); ?></td>
+	        		<td><?php echo sprintf('%.8f',$withdrawal->fee_amount); ?></td>
+	        		<td><?php echo $withdrawal->to_address; ?></td>
+	        		<!-- <td><?php echo $withdrawal->confirmations; ?></td> -->
+	        		<?php if($withdrawal->status): ?>          
+                        <td><b style="color:green"><?php echo ucwords(trans('texts.complete')); ?></b></td>  
+	                <?php else: ?>  
+	                	<td><b style="color:red"><?php echo ucwords(trans('texts.pending')); ?></b></td> 
+	                <?php endif; ?>	 
+                    <td><?php if(!$withdrawal->status): ?><a href="javascript:cancelWithdraw(<?php echo e($withdrawal->id); ?>);"><?php echo trans('texts.cancel'); ?></a><?php endif; ?></td>       		
+	        	</tr>
+	        <?php endforeach; ?>
+	    </tbody>
+	</table>
+    <!-- <div id="messageModal" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-content">      
+              <div class="modal-body">
+              </div>
+              <div class="modal-footer"> 
+                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo e(trans('user_texts.close')); ?></button>
+              </div>
+            </div>
+          </div>
+    </div>     -->
+</div>
+<?php $__env->startSection('script.footer'); ?>
+@parent
+<script type="text/javascript">
+  function cancelWithdraw(withdraw_id){
+        $.post('<?php echo action('UserController@cancelWithdraw')?>', {isAjax: 1, withdraw_id: withdraw_id }, function(response){
+              var obj = $.parseJSON(response); 
+              if(obj.status == 'success'){               
+               /* $('#messageModal .modal-body').html('<p style="color:#008B5D; font-weight:bold;text-align:center;">'+obj.message+'</p>');            
+                $('#messageModal').on('hidden.bs.modal', function (e) {              
+                  location.reload();
+                });*/
+                $.Dialog({ shadow: true, overlay: true, draggable: true, icon: '',  title: 'Message', width: 500, padding: 10, content: 'This Window is draggable by caption.', sysButtons: {  btnClose: true  },
+                  sysBtnCloseClick: function(e){
+                      location.reload();
+                  },              
+                  onShow: function(){
+                      //$.Dialog.title();
+                      $.Dialog.content('<p style="color:#008B5D; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+                      $('body').click(function(event) {
+                        location.reload();
+                      });
+                  }
+                });
+              }else{
+                //$('#messageModal .modal-body').html('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+                $.Dialog({  shadow: true, overlay: true, draggable: true, icon: '', title: 'Message', width: 500, padding: 10, content: 'This Window is draggable by caption.',  onShow: function(){  $.Dialog.content('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>'); } });
+              }              
+              //$('#messageModal').modal({show:true});  
+              console.log('Obj: ',obj);
+            });
+      }
+  </script>
+<?php $__env->stopSection(); ?>

@@ -1,0 +1,103 @@
+<?php $__env->startSection('content'); ?>
+<h2>Edit Deposit</h2>
+	<?php if( is_array(Session::get('error')) ): ?>
+        <div class="alert alert-error"><?php echo head(Session::get('error')); ?></div>
+	<?php elseif( Session::get('error') ): ?>
+      <div class="alert alert-error"><?php echo e(Session::get('error')); ?></div>
+	<?php endif; ?>
+	<?php if( Session::get('success') ): ?>
+      <div class="alert alert-success"><?php echo e(Session::get('success')); ?></div>
+	<?php endif; ?>
+
+	<?php if( Session::get('notice') ): ?>
+	      <div class="alert"><?php echo e(Session::get('notice')); ?></div>
+	<?php endif; ?>
+<form class="form-horizontal" role="form" id="edit_wallet" method="POST" action="<?php echo e(URL::to('/admin/edit-method-deposit')); ?>">
+	<input type="hidden" name="_token" value="<?php echo e(Session::getToken()); ?>">
+	<div class="form-group">
+	    <label for="inputEmail3" class="col-sm-2 control-label"><?php echo Lang::get('admin_texts.method_id'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input type="text" class="form-control" required="" name="id" id="type" value="<?php echo e($MethodDepositCurrency->id); ?>" readonly>
+			</div>	      	      
+	    </div>
+	</div>
+<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo Lang::get('admin_texts.method_name'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input type="text" name="dname" id="name"  class="form-control" value="<?php echo e($MethodDepositCurrency->dname); ?>">
+			</div>	      
+	    </div>
+	</div>	
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo Lang::get('admin_texts.method_fee'); ?> (%)</label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input type="text" name="dfee" id="name"  class="form-control" value="<?php echo e($MethodDepositCurrency->dfee); ?>">
+			</div>	      
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo Lang::get('admin_texts.method_min_value'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input  type="text"  class="form-control" name="dmin" id="wallet_username" value="<?php echo e($MethodDepositCurrency->dmin); ?>">			  
+			</div>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo Lang::get('admin_texts.method_description'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			 <textarea type="text" cols="28" rows="5" name="ddes" id="password" class="form-control"><?php echo e($MethodDepositCurrency->ddes); ?></textarea>	  
+			</div>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo Lang::get('admin_texts.method_min_fee'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			 <input type="text" name="dminfee" id="password" class="form-control"  value="<?php echo e($MethodDepositCurrency->dminfee); ?>">
+			</div>
+	    </div>
+	</div>
+	
+	<div class="form-group">		
+	    <div class="col-sm-offset-2 col-sm-10">
+	    	<input type="hidden" class="form-control" id="wallet_id" name="id" value="<?php echo $MethodDepositCurrency->id; ?>">
+	      <button type="submit" class="btn btn-primary" id="do_add"><?php echo Lang::get('admin_texts.save'); ?></button>
+	      <button type="button" class="btn btn-default"><a href="<?php echo URL::previous(); ?>"><?php echo trans('admin_texts.back'); ?></a></button>
+	    </div>
+	</div>
+</form>
+<?php echo HTML::script('assets/js/jquery.validate.min.js'); ?>
+<script type="text/javascript">
+    $(document).ready(function() {    	
+        $("#edit_wallet").validate({
+            rules: {
+                type: "required",
+                name: "required",
+                ip: "required",
+                port: {
+                    required: true,
+                    number: true
+                },                
+               
+            },
+            messages: {
+                type: "Please provide a type of wallet.", 
+                name: "Please provide a name of wallet.", 
+                ip: "Please provide a ip.",  
+                port: {
+                    required: "Please provide a port.",
+                    number: "Port must be a number."
+                },              
+               
+            }
+	});
+
+   });
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

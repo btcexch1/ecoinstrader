@@ -1,0 +1,174 @@
+<?php $__env->startSection('content'); ?>	
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<h2><?php echo trans('admin_texts.markets'); ?></h2>
+<?php if( is_array(Session::get('error')) ): ?>
+        <div class="alert alert-error"><?php echo head(Session::get('error')); ?></div>
+	<?php elseif( Session::get('error') ): ?>
+      <div class="alert alert-error"><?php echo e(Session::get('error')); ?></div>
+	<?php endif; ?>
+	<?php if( Session::get('success') ): ?>
+      <div class="alert alert-success"><?php echo e(Session::get('success')); ?></div>
+	<?php endif; ?>
+
+	<?php if( Session::get('notice') ): ?>
+	      <div class="alert"><?php echo e(Session::get('notice')); ?></div>
+	<?php endif; ?>
+<a href="javascript:void()" id="add_market_link"><?php echo trans('admin_texts.add_market'); ?></a>
+
+<form class="form-horizontal" role="form" id="add_new_market" method="POST" action="<?php echo e(Confide::checkAction('Admin_SettingController@addNewMarket') ?: URL::to('/admin/add-market')); ?>">
+	<input type="hidden" name="_token" value="<?php echo e(Session::getToken()); ?>">
+	<div class="form-group">
+	    <label for="inputEmail3" class="col-sm-2 control-label"><?php echo trans('admin_texts.from'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+	    		<select class="form-control" required="" name="wallet_from" id="wallet_from">
+	    			<option value="">---Select wallet ---</option>
+	    			<?php foreach($wallets as $wallet): ?>
+	    				<option value="<?php echo $wallet->id; ?>"><?php echo $wallet->type; ?></option>
+	    			<?php endforeach; ?>
+	    		</select>			  
+			</div>	      	      
+	    </div>
+	</div>	
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo trans('admin_texts.to'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <select class="form-control" required="" name="wallet_to" id="wallet_to">
+	    			<option value="">---Select wallet ---</option>
+	    			<?php foreach($wallets as $wallet): ?>
+	    				<?php if( $wallet->type=='BTC' || $wallet->type=='LTC' ): ?>
+	    				<option value="<?php echo $wallet->id; ?>"><?php echo $wallet->type; ?></option>
+	    				<?php endif; ?>
+	    			<?php endforeach; ?>
+	    		</select>	
+			</div>	      
+	    </div>
+	</div>	
+	<div class="form-group">		
+	    <div class="col-sm-offset-2 col-sm-10">
+	      <button type="submit" class="btn btn-primary" id="do_add">Add</button>
+	    </div>
+	</div>
+</form>
+<table class="table table-striped" id="list-fees">
+	<tr>
+		<th><?php echo trans('admin_texts.id'); ?></th> 	
+	 	<th><?php echo trans('admin_texts.from'); ?></th>
+	 	<th><?php echo trans('admin_texts.to'); ?></th>
+	 	<th><?php echo trans('admin_texts.status'); ?></th>
+	 	<th><?php echo trans('admin_texts.action'); ?></th>
+	</tr> 	
+	<?php foreach($markets as $market): ?>
+		<?php if(isset($wallets[$market->wallet_from]) && isset($wallets[$market->wallet_to])): ?>
+		<tr><td><?php echo $market->id; ?></td><td><?php echo $wallets[$market->wallet_from]->type; ?></td><td><?php echo $wallets[$market->wallet_to]->type; ?></td>
+			<?php if($market->active): ?>
+				<td  class="status"><?php echo Lang::get('admin_texts.enabled'); ?></td>
+			<?php else: ?>
+				<td class="status"><b style="color:red"><?php echo Lang::get('admin_texts.disabled'); ?></b></td>
+			<?php endif; ?>
+			<td>
+				<a href="javascript:void()" onclick="deleteMarket(<?php echo $market->id; ?>)" class="delete_market"><?php echo trans('admin_texts.delete'); ?></a> | 
+				<?php
+				 if($market->active){ ?>
+				 	<a href="javascript:void()" onclick="disableMarket(<?php echo $market->id; ?>,0)" class="delete_market"><?php echo trans('admin_texts.disable'); ?></a>
+				 	<?php			 	
+				 }
+				 else{
+				 	?>
+				 	<a href="javascript:void()" onclick="disableMarket(<?php echo $market->id; ?>,1)" class="delete_market"><?php echo trans('admin_texts.enable'); ?></a>
+				 	<?php
+				 }
+				?>
+				
+			</td>
+		</tr>
+		<?php endif; ?>
+	<?php endforeach; ?>
+	
+</table>
+<div id="pager"></div>
+<div id="messageModal" class="modal hide fade" tabindex="-1" role="dialog">		
+	<div class="modal-body">		
+	</div>
+	<div class="modal-footer">
+		<button class="btn close-popup" data-dismiss="modal"><?php echo e(trans('texts.close')); ?></button>
+	</div>
+</div>
+<?php echo HTML::script('assets/js/jquery.validate.min.js'); ?>
+<script type="text/javascript">
+function deleteMarket(market_id){
+	var r = confirm("<?php echo Lang::get('admin_texts.warning_delete_market') ?>");
+	if (r == true) {
+		$.post('<?php echo action('Admin_SettingController@deleteMarket')?>', {isAjax: 1, market_id: market_id }, function(response){
+	       	var obj = $.parseJSON(response);
+		    console.log('obj: ',obj);
+		    if(obj.status == 'success'){
+	            $('#messageModal .modal-body').html('<p style="color:#008B5D; font-weight:bold;text-align:center;">'+obj.message+'</p>');            
+	            $('#messageModal').on('hidden.bs.modal', function (e) {              
+	              location.reload();
+	            });
+	        }else{
+	            $('#messageModal .modal-body').html('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+	        }
+	        $('#messageModal').modal({show:true, keyboard:false}); 
+	    });
+	}
+    return false;
+}
+function disableMarket(market_id,status){
+	$.post('<?php echo action('Admin_SettingController@disableMarket')?>', {isAjax: 1, market_id: market_id, status:status }, function(response){
+       	var obj = $.parseJSON(response);
+	    console.log('obj: ',obj);
+	    if(obj.status == 'success'){
+            $('#messageModal .modal-body').html('<p style="color:#008B5D; font-weight:bold;text-align:center;">'+obj.message+'</p>');            
+            $('#messageModal').on('hidden.bs.modal', function (e) {              
+              location.reload();
+            });
+        }else{
+            $('#messageModal .modal-body').html('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+        }
+        $('#messageModal').modal({show:true, keyboard:false}); 
+    });
+    return false;
+}
+
+    $(document).ready(function() {
+    	$('#add_new_market').hide();
+        $('#add_market_link').click(function(event) {
+        	$('#add_new_market').toggle("slow");
+        });
+        $("#add_new_market").validate({
+            rules: {
+                wallet_from: {
+                    required: true,
+                },
+                wallet_to: {
+                    required: true,
+                },
+            },
+            messages: {
+                wallet_from: {
+                    required: "Please provide a wallet from.",
+                },
+                wallet_to: {
+                    required: "Please provide a wallet to.", 
+                },
+            }
+	});
+
+   });
+</script>
+<script type='text/javascript'>
+    var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){
+        	return "<?php echo URL::to('admin/manage/markets'); ?>"+'/'+page; 
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

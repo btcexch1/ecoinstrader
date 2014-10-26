@@ -1,0 +1,184 @@
+<!-- Security -->
+<?php $__env->startSection('title'); ?>
+<?php echo e(trans('texts.deposit')); ?>
+<?php $__env->stopSection(); ?>
+<div id="form_deposit">
+	<div style="color:red"><?php if(isset($error_message)): ?> <?php echo $error_message; ?> <?php endif; ?></div>
+    <h2><?php echo e(trans('texts.deposit')); ?> - <?php echo $current_coin; ?></h2> 
+    <?php echo Lang::get('user_texts.your_current_available'); ?> <?php echo $current_coin; ?> <?php echo Lang::get('user_texts.balance'); ?>: <strong><?php echo $balance; ?></strong>
+    <?php if($wallet->enable_deposit): ?>
+    	<?php if(!$wallet->is_moneypaper): ?>
+	    	<?php 
+			function generateQRwithGoogle($url,$widthHeight ='150',$EC_level='L',$margin='0') {
+				$url = urlencode($url); 
+				echo '<img src="http://chart.apis.google.com/chart?chs='.$widthHeight.
+				'x'.$widthHeight.'&cht=qr&chld='.$EC_level.'|'.$margin.
+				'&chl='.$url.'" alt="QR code" widthHeight="'.$widthHeight.
+				'" widthHeight="'.$widthHeight.'"/>';
+			}
+			?>
+		    <h3><?php echo Lang::get('user_texts.your_address_deposit'); ?></h3>
+		    <div class="addressSection">
+		    	<div class="options box" style="display: inline-block;"><span id="address"><?php echo $address_deposit; ?></span> &nbsp; <input type="button" id="copy-button" class="inline" data-clipboard-target="address" value="Copy"></div>
+		    	<?php
+		    	$urlToEncode=$address_deposit;
+				generateQRwithGoogle($urlToEncode);			
+		    	?>
+		    	<p><?php echo Lang::get('user_texts.note_generate_new_address'); ?></p>
+		    	<br><span id="s_message"></span> 
+		    	<br><input class="generateAddress inverse" type="button"  value="<?php echo Lang::get('user_texts.generate_new_address'); ?>" onclick="generateNewAddrDeposit()">
+
+		    </div>
+		    <input type="hidden" name="wallet_id" id="wallet_id" value="<?php echo $wallet_id; ?>">
+		    <?php echo HTML::script('assets/zeroclipboard/ZeroClipboard.min.js'); ?>
+		   	<script type="text/javascript">
+			 	var client = new ZeroClipboard(document.getElementById("copy-button"), {
+			    	moviePath: "<?php echo asset('assets/js/zeroclipboard/zeroclipboard.swf'); ?>"
+			  	});
+
+			  	client.on( "load", function(client) {
+
+				    client.on( "complete", function(client, args) {
+				      // `this` is the element that was clicked
+				      $(this).css("background", "#666");
+				      $(this).val("Copied");
+				    });
+			  	});
+			  	function generateNewAddrDeposit(){
+			  		$('input.generateAddress').hide();
+			      	var wallet_id = $('#wallet_id').val();    
+			      	$.post('<?php echo action('DepositController@generateNewAddrDeposit')?>', {isAjax: 1, wallet_id: wallet_id}, function(response){
+			          var obj = $.parseJSON(response);
+			          //console.log('ajVerifyToken: ',obj);
+			          $('input.generateAddress').show();
+			          if(obj.status == 'success'){                  
+			             $('#address').html(obj.address);  
+			          }else {
+			          	$('#s_message').html('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+			          }
+			      	});
+			      return false;
+			    }
+			</script>
+		<?php else: ?>
+			<div class="panel">
+			    <div class="panel-header bg-lightBlue fg-white"><?php echo e(trans('user_texts.create_deposit')); ?></div>
+			    <div class="panel-content">
+			    	<form id="notifyDeposit" class="form-horizontal" method="POST" action="<?php echo e(URL::to('/user/notify-deposit')); ?>">
+						<p><?php echo Lang::get('user_texts.note_deposit_currency'); ?></p> 
+						<div style="color:red" id="message_errors"></div>
+					    <?php if( Session::get('error') ): ?>
+					        <div class="notice marker-on-bottom bg-darkRed fg-white">        	
+					            <?php if( is_array(Session::get('error')) ): ?>
+					                <?php echo head(Session::get('error')); ?>
+					            <?php else: ?>
+					            	<?php echo Session::get('error'); ?>
+					            <?php endif; ?>
+					        </div>
+					    <?php endif; ?>
+					    <?php if( Session::get('success') ): ?>
+					        <div class="notice marker-on-bottom fg-white">            
+					            <?php echo Session::get('success'); ?>
+					        </div>
+					    <?php endif; ?>  
+					    <?php if( Session::get('notice') ): ?>
+					        <div class="notice marker-on-bottom bg-amber fg-white">            
+					            <?php echo Session::get('notice'); ?>
+					        </div>
+					    <?php endif; ?> 
+					    <label><?php echo Lang::get('user_texts.your_info_account'); ?></label>
+					    <div class="input-control text">
+						    <textarea id="address" name="address" required="" cols="60" rows="5"></textarea>
+						    <p class="text-small"><em><?php echo Lang::get('user_texts.note_your_account'); ?></em></p>
+						</div>
+						<label><?php echo Lang::get('user_texts.method_payment'); ?></label>
+						<div class="input-control select size3">
+							<select name="transaction_id" id="method_deposit">
+								<?php foreach($method_deposits as $method): ?>
+								<option data-min="<?php echo $method->dmin; ?>" value="<?php echo $method->dname; ?> - fee <?php echo $method->dfee; ?>%"><?php echo $method->dname; ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+						<label><?php echo Lang::get('user_texts.amount'); ?> <?php echo $current_coin; ?></label>
+						<div class="input-control text size3">						
+						    <input type="text" class="form-control" id="amount" name="amount" required>
+						</div>
+						<div class="input-control text">	
+							<input type="hidden" name="wallet_id" value="<?php echo $wallet->id; ?>">
+							<button type="submit" class="button btn-primary"><?php echo trans('user_texts.create_deposit'); ?></button>	
+						</div>
+						
+					</form>
+			    </div>
+			</div>
+			<br>
+			<h3><?php echo Lang::get('user_texts.our_account'); ?></h3>
+			<table class="table striped hovered">
+				<thead>	
+					<tr> 	
+					 	<th><?php echo Lang::get('user_texts.method_name'); ?></th>
+					 	<th><?php echo Lang::get('user_texts.method_fee'); ?> (%)</th>	 	
+					 	<th><?php echo Lang::get('user_texts.method_min_value'); ?></th>
+					 	<th><?php echo Lang::get('user_texts.method_description'); ?></th>	 	
+					 	<th><?php echo Lang::get('user_texts.method_min_fee'); ?></th>
+					 </tr>
+				</thead>
+				<tbody>
+					<?php foreach($method_deposits as $method): ?>
+					<tr><td><?php echo $method->dname; ?></td><td><?php echo $method->dfee; ?></td><td><?php echo $method->dmin; ?></td><td><?php echo $method->ddes; ?></td><td><?php echo $method->dminfee; ?></td></tr>
+					<?php endforeach; ?>	
+				</tbody>	
+				
+			</table>
+			<?php $__env->startSection('script.footer'); ?>
+			@parent
+			<?php echo HTML::script('assets/js/jquery.validate.min.js'); ?>
+			   	<script type="text/javascript">	
+			   		function checkAmount(){
+			   			$('#message_errors').html('');
+			   			var amount =parseFloat( $('#amount').val());
+			   			var method_deposit = document.getElementById("method_deposit");
+						var method = method_deposit.options[method_deposit.selectedIndex];	
+						var amount_min = parseFloat(method.getAttribute('data-min'));				    	   
+					    //console.log('amount_min: ', amount_min);				    
+					    if(amount<amount_min){
+					    	$('#message_errors').html("Amount must be greater than "+amount_min);
+					    	return false;
+					    }else return true;
+			   		}
+			   		$(document).ready(function() { 			   		
+						$('#amount, #method_deposit').change(function(event) {
+							checkAmount();
+						});          
+			            $("#notifyDeposit").validate({
+			                rules: {
+			                	amount: {
+							      required: true,
+							      number: true,						      
+							    }                   
+			                },
+			                messages: {
+			                    amount: {
+			                        required: "Please enter amount.",
+			                        number: "Please enter a number."
+			                    },
+			                    address: "Please enter your account information."
+			                },
+			                submitHandler: function(form) {
+			                	if(checkAmount()){
+			                		$('button[type=submit]').hide();
+			                    	form.submit();
+			                	}
+			                    
+			                }
+			             });           
+			       });
+			</script>
+			<?php $__env->stopSection(); ?>
+		<?php endif; ?>
+    <?php else: ?>
+    	<div class="notice marker-on-bottom bg-amber fg-white">            
+            <?php echo Lang::get('user_texts.notify_deposit_disable',array('coin'=>$wallet->name)); ?>
+        </div>
+    <?php endif; ?>    
+</div>

@@ -1,0 +1,143 @@
+<?php $__env->startSection('content'); ?>	
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<h2><?php echo trans('admin_texts.deposits_queue'); ?></h2>
+<?php
+$query_string = '';
+foreach (Request::query() as $key => $value) {
+    $query_string .= $key."=".$value."&";
+}
+$query_string = trim($query_string,'&');
+?>
+<?php if( is_array(Session::get('error')) ): ?>
+    <div class="alert alert-error"><?php echo head(Session::get('error')); ?></div>
+<?php elseif( Session::get('error') ): ?>
+  <div class="alert alert-error"><?php echo e(Session::get('error')); ?></div>
+<?php endif; ?>
+<?php if( Session::get('success') ): ?>
+  <div class="alert alert-success"><?php echo e(Session::get('success')); ?></div>
+<?php endif; ?>
+
+<?php if( Session::get('notice') ): ?>
+      <div class="alert"><?php echo e(Session::get('notice')); ?></div>
+<?php endif; ?>
+<form class="form-inline"  role="form" id="filter_market" method="get" action="<?php echo e(URL::to('/admin/manage/deposits-queue')); ?>">
+	<label><?php echo e(trans('admin_texts.wallet')); ?></label>        
+    <select name="wallet_id">
+	  	<option value="" <?php if(isset($_GET['wallet_id']) && $_GET['wallet_id']==''): ?> selected <?php endif; ?>>--<?php echo trans('admin_texts.all'); ?>--</option>
+	  	<?php foreach($wallets as $wallet): ?>
+	  		<option value="<?php echo $wallet['id']; ?>" <?php if(isset($_GET['wallet_id']) && $_GET['wallet_id']==$wallet['id']): ?> selected <?php endif; ?>><?php echo $wallet['type']; ?></option>
+	  	<?php endforeach; ?>
+    </select>
+    <label><?php echo e(trans('admin_texts.status')); ?></label>
+    <select id="type" name="status" style="margin-right: 20px;">
+        <option value="" selected="selected"><?php echo trans('admin_texts.all'); ?></option>
+        <option value="0"><?php echo trans('admin_texts.pending'); ?></option>
+        <option value="1"><?php echo trans('admin_texts.complete'); ?></option>
+    </select> 
+    <label><?php echo e(trans('admin_texts.username')); ?></label>        
+    <select name="username">
+	  	<option value="" <?php if(isset($_GET['username']) && $_GET['username']==''): ?> selected <?php endif; ?>>--<?php echo trans('admin_texts.all'); ?>--</option>
+	  	<?php foreach($users as $user): ?>
+	  		<option value="<?php echo $user['username']; ?>" <?php if(isset($_GET['username']) && $_GET['username']==$user['username']): ?> selected <?php endif; ?>><?php echo $user['username']; ?></option>
+	  	<?php endforeach; ?>
+    </select>
+    <button type="submit" class="btn btn-primary" name="do_filter"><?php echo trans('texts.filter'); ?></button>
+</form>
+<div id="messages"></div>
+<table class="table table-striped" id="list-fees">
+	<tr>
+	 	<th><?php echo trans('admin_texts.coin'); ?></th>
+	 	<th><?php echo trans('admin_texts.username'); ?></th>
+	 	<th><?php echo trans('admin_texts.address'); ?></th> 	
+	 	<th><?php echo trans('admin_texts.amount'); ?></th>
+	 	<th><?php echo trans('admin_texts.confirmations'); ?></th>
+	 	<th><?php echo e(trans('admin_texts.status')); ?></th>
+	 	<th><?php echo trans('admin_texts.date'); ?></th>
+	</tr> 	
+	<?php foreach($deposits as $deposit): ?>
+		<?php if(isset($wallets[$deposit->wallet_id])): ?>
+			<tr>
+				<td><?php echo $wallets[$deposit->wallet_id]['type']; ?></td>
+				<td><?php echo $deposit->username; ?></td>
+				<td>
+				<?php if($wallets[$deposit->wallet_id]['type']=='POINTS'): ?> <?php echo $deposit->transaction_id; ?>
+				<?php else: ?>
+					<?php echo $deposit->address; ?>
+				<?php endif; ?>
+				</td>
+				<td><?php echo $deposit->amount; ?> <?php /* <?php echo sprintf('%.8f',$deposit->amount); ?> */ ?></td>
+				<td><?php echo $deposit->confirmations; ?></td>			
+				<?php if($deposit->paid): ?>          
+	                <td><b style="color:green"><?php echo ucwords(trans('admin_texts.complete')); ?></b></td>  
+	            <?php else: ?>  
+	            	<td><b style="color:red"><?php echo ucwords(trans('admin_texts.pending')); ?></b>
+	            		<?php 
+	            			if($wallets[$deposit->wallet_id]['is_moneypaper']){
+	            			?>
+	            				<br> <button type="button" class="btn btn-danger" onclick="showUpdate('<?php echo $deposit->username; ?>','<?php echo $deposit->amount; ?>','<?php echo $deposit->transaction_id; ?>','<?php echo $deposit->id; ?>');"><?php echo Lang::get('admin_texts.update'); ?></button>
+	            			<?php } ?>
+	            	</td> 
+	            <?php endif; ?>	 
+				<td><?php echo $deposit->created_at; ?></td>			
+			</tr>
+		<?php endif; ?>
+	<?php endforeach; ?>
+</table>
+<div id="pager"></div>
+<div id="messageModal" class="modal hide fade" tabindex="-1" role="dialog">	
+	<div class="modal-header"><h2><?php echo Lang::get('admin_texts.update_send_money_deposit'); ?></h2></div>	
+	<div class="modal-body">	
+		<form id="updateDeposit" action="<?php echo URL::to('admin/update-send-deposit'); ?>" method="POST">
+			<div class="form-group">
+		      <label><?php echo Lang::get('admin_texts.username'); ?></label>
+		      <input type="text" class="form-control" name="username" id="username" readonly>	      
+		    </div>
+		    <div class="form-group">
+		      <label for="name"><?php echo Lang::get('admin_texts.method_deposit'); ?></label>
+		      <input type="text" class="form-control"  name="transaction_id" id="transaction_id">
+		    </div>
+			<div class="form-group">
+		      <label for="name"><?php echo Lang::get('admin_texts.amount'); ?></label>
+		      <input type="text" class="form-control"  name="amount" id="amount">
+		    </div>		    
+		    <div class="checkbox">
+		      <label>
+		      <input type="checkbox" name="paid" value="1"> <?php echo Lang::get('admin_texts.paid'); ?>
+		      </label>
+		    </div> 
+		    <p><b><?php echo Lang::get('admin_texts.note_update_deposit'); ?></b></p>
+	</div>
+	<div class="modal-footer">
+		<input type="hidden" name="redirect" value="<?php echo URL::current(); ?>">
+		<input type="hidden" name="deposit_id" id="deposit_id">
+		<button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+		<button class="btn close-popup" data-dismiss="modal"><?php echo e(trans('texts.close')); ?></button>
+	</div>
+</div>
+<script type='text/javascript'>
+    var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){
+        	return "<?php echo URL::to('admin/manage/deposits-queue'); ?>"+'/'+page+'<?php echo "?".$query_string ?>'; 
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+
+
+    function showUpdate(username, amount, method_deposit,id){    	
+        //$('#messageModal .modal-body').html('<p style="color:#008B5D; font-weight:bold;text-align:center;">'+obj.message+'</p>');            
+        /*$('#messageModal').on('hidden.bs.modal', function (e) {              
+          location.reload();
+        });*/
+		$('#messageModal #amount').val(amount);
+		$('#messageModal #username').val(username);
+		$('#messageModal #transaction_id').val(method_deposit);
+		$('#messageModal #deposit_id').val(id);
+		$('#messageModal').modal({show:true, keyboard:false}); 
+	    return false;	}
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

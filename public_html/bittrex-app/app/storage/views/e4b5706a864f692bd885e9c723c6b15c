@@ -1,0 +1,65 @@
+<!-- Edit Profile -->
+<?php $__env->startSection('title'); ?>
+<?php echo e(trans('texts.account_balances')); ?>
+<?php $__env->stopSection(); ?>
+<div id="balances">
+    <h2><?php echo e(trans('texts.account_balances')); ?></h2>
+    <p>Use the actions button to deposit, withdraw or view orders/trades for that specific coin.</p>
+    <table class="table hovered">
+        <tbody>
+            <tr>
+                <th>Coin Name</th>
+                <th>Code</th>
+                <th>Available Balance</th>
+                <th>Pending Deposits</th>
+                <th>Pending Withdrawals</th>
+                <th>Held for Orders</th>
+                <th></th>
+            </tr>
+            <?php foreach($balances as $balance): ?>
+                <?php if(strtoupper($balance['type'])==strtoupper('points') && $disable_points): ?>
+                    <?php /* do nothing */ ?>
+                <?php else: ?>            
+                <tr>
+                    <td>
+                        <div class="button-dropdown">
+                          <button type="button" class="button success dropdown-toggle" data-toggle="dropdown">
+                            <i class="icon-arrow-down-4 on-left"></i>
+                            <?php echo $balance['name']; ?>                            
+                          </button>
+                          <ul class="dropdown-menu" data-role="dropdown">
+                            <?php if(!empty($balance['logo_coin'])): ?>                        
+                                <li><span class="logo"><img width="32" height="32" src="<?php echo asset(''); ?>/<?php echo $balance['logo_coin']; ?>" /> <strong><?php echo $balance['name']; ?></strong></span></li>
+                            <?php endif; ?>
+                            <?php if(strtoupper($balance['type'])!=strtoupper('points')): ?>
+                                <li><a href="<?php echo e(URL::to('/user/deposit')); ?>/<?php echo $balance['id']; ?>"><?php echo trans('texts.deposit'); ?> <?php echo $balance['type']; ?></a></li>
+                                <li><a href="<?php echo e(URL::to('/user/withdraw')); ?>/<?php echo $balance['id']; ?>"><?php echo trans('texts.withdraw'); ?> <?php echo $balance['type']; ?></a></li>
+                            <?php endif; ?>
+                            <li><a href="<?php echo e(URL::to('/user/transfer-coin')); ?>/<?php echo $balance['id']; ?>"><?php echo trans('texts.transfer_coin',array('coin'=>$balance['type'])); ?></a></li>
+                            <li><a href="<?php echo e(URL::to('/user/profile/deposits')); ?>/<?php echo $balance['id']; ?>"><?php echo trans('texts.view_deposits_coin',array('coin'=>$balance['type'])); ?></a></li>
+                            <li><a href="<?php echo e(URL::to('/user/profile/withdrawals')); ?>/<?php echo $balance['id']; ?>"><?php echo trans('texts.view_withdrawals_coin',array('coin'=>$balance['type'])); ?></a></li>
+                            <li><a href="<?php echo e(URL::to('/user/profile/orders')); ?>/<?php echo $balance['id']; ?>"><?php echo trans('texts.view_orders_coin',array('coin'=>$balance['type'])); ?></a></li>
+                            <li><a href="<?php echo e(URL::to('/user/profile/trade-history')); ?>/<?php echo $balance['id']; ?>"><?php echo trans('texts.view_trades_coin',array('coin'=>$balance['type'])); ?></a></li>
+                            <li><a href="<?php echo e(URL::to('user/profile/viewtranferout')); ?>/<?php echo $balance['id']; ?>"><?php echo trans('texts.view_transfer_out',array('coin'=>$balance['type'])); ?></a></li>
+                            <li><a href="<?php echo e(URL::to('user/profile/viewtranferin')); ?>/<?php echo $balance['id']; ?>"><?php echo trans('texts.view_transfer_in',array('coin'=>$balance['type'])); ?></a></li>   
+                            <?php if(strtoupper($balance['type'])!=strtoupper('points')): ?>                        
+                                <li><a href="<?php echo e($balance['download_wallet_client']); ?>" target="_blank"><?php echo trans('texts.download_wallet',array('coin'=>$balance['type'])); ?></a></li>
+                            <?php endif; ?>
+                            <?php if(strtoupper($balance['type'])==strtoupper('points')): ?>                        
+                                <li><a href="<?php echo e(URL::to('user/profile/ecoinstraderpoint')); ?>"><?php echo trans('texts.information_point'); ?></a></li>
+                            <?php endif; ?>
+                          </ul>
+                        </div>
+                    </td>
+                    <td><?php echo $balance['type']; ?></td>
+                    <td <?php if($balance['balance']>0): ?> class="has_amount" <?php endif; ?>><?php echo $balance['balance']; ?></td>
+                    <td <?php if($balance['deposit_pendding']>0): ?> class="has_amount" <?php endif; ?>><?php echo $balance['deposit_pendding']; ?></td>
+                    <td <?php if($balance['withdraw_pendding']>0): ?> class="has_amount" <?php endif; ?>><?php echo $balance['withdraw_pendding']; ?></td>
+                    <td <?php if($balance['held_order']>0): ?> class="has_amount" <?php endif; ?>><?php echo $balance['held_order']; ?></td>                    
+                </tr>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    
+</div>

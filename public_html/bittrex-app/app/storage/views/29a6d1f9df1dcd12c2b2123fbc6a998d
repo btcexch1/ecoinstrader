@@ -1,0 +1,64 @@
+<nav class="navigation-bar dark nav-footer">
+    <nav class="navigation-bar-content footer-top"> 
+        <i class="icon-arrow-down-5 on-right on-left"></i>
+    </nav>
+    <nav class="navigation-bar-content container">
+        <div class="grid">
+            <div class="row">
+                <nav class="vertical-menu compact">
+                    <ul>
+                        <li class="title">About</li>
+                        <li><a href="#">About us</a></li>
+                        <li><a href="#">News</a></li>
+                        <li><a href="#">Fee Schedule</a></li>
+                        <li><a href="#">Term of Use</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Cookie Statement</a></li>
+                    </ul>
+                </nav>                
+            </div>
+            <div class="row">
+                <nav class="vertical-menu compact">
+                    <ul>
+                        <li class="title">Help</li>
+                        <li><a href="#">What is bitcoin?</a></li>
+                        <li><a href="#">How to buy bitcoins</a></li>
+                        <li><a href="#">How to sell bitcoins</a></li>
+                        <li><a href="#">FAQ</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="row">
+                <nav class="vertical-menu compact">
+                    <ul>
+                        <li class="title">Data</li>
+                        <li><a href="#">Overview</a></li>
+                        <li><a href="#">Order Book</a></li>
+                        <li><?php echo HTML::link('page/api', trans('user_texts.api'), array('class' => Request::is('page/api')?'active':'')); ?></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="row">
+                <nav class="vertical-menu compact">
+                    <ul>
+                        <li class="title">Follow EcoinsTrader</li>
+                        <li><a href="#"><img class="img-logo" src="<?php echo asset('assets/img/facebook.png'); ?>"/> <img class="img-logo" src="<?php echo asset('assets/img/twitter.png'); ?>"/> <img class="img-logo" src="<?php echo asset('assets/img/google.png'); ?>"/></a></li>
+                        <li><p>Emails Newsletters</p>
+                            <p>Inspiration, ideas, news and your feedback.</p>
+                            <form>
+                                <div class="input-control text">
+                                    <input type="text" value="" placeholder="Email address"/>
+                                    <button class="btn-clear"></button>
+                                </div>
+                                <button>Subscribe<i class="icon-arrow-right-5"></i></button>
+                            </form>
+                        </li>                        
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </nav>
+    <nav class="navigation-bar-content footer-bottom">       
+        <img class="img-logo" src="<?php echo asset('assets/img/bitcoin.png'); ?>"/> &copy; 2014 <span class="bold blue">Ecoins</span><span class="bold">Trader</span>
+    </nav>
+</nav>

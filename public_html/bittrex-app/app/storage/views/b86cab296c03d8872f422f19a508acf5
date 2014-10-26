@@ -1,0 +1,82 @@
+<?php $__env->startSection('content'); ?>
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<h2><?php echo trans('admin_texts.orders_queue'); ?></h2>
+<?php
+$query_string = '';
+foreach (Request::query() as $key => $value) {
+    $query_string .= $key."=".$value."&";
+}
+$query_string = trim($query_string,'&');
+?>
+<form class="form-inline" method="get" action="<?php echo e(URL::to('/admin/manage/orders')); ?>">
+    <label><?php echo e(trans('texts.market')); ?></label>        
+    <select id="pair" style="margin-right: 20px;" name="market">
+        <option value="" <?php if(isset($_GET['market']) == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+        <?php foreach($markets as $key=> $market): ?>
+            <option value="<?php echo $market['id']; ?>" <?php if(isset($_GET['market']) && $_GET['market']==$market['id']): ?> selected <?php endif; ?>><?php echo strtoupper($market['wallet_from'].'/'.$market['wallet_to']); ?></option>
+        <?php endforeach; ?>
+    </select>
+	<label><?php echo e(trans('texts.type')); ?></label>
+	<select id="type" name="type" style="margin-right: 20px;">
+	    <option value="" <?php if(isset($_GET['type']) == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+	    <option value="sell" <?php if(isset($_GET['type']) && $_GET['type'] == 'sell'): ?> selected <?php endif; ?>><?php echo trans('texts.sell'); ?></option>
+	    <option value="buy" <?php if(isset($_GET['type']) && $_GET['type'] == 'buy'): ?> selected <?php endif; ?>><?php echo trans('texts.buy'); ?></option>
+	</select>
+	<label><?php echo e(trans('texts.show')); ?></label>
+	<select id="view" name="status">
+	    <option value="" <?php if(isset($_GET['status']) == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+	    <option value="active" <?php if(isset($_GET['status']) && $_GET['status'] == 'active'): ?> selected <?php endif; ?>><?php echo trans('texts.active'); ?></option>
+	    <option value="filled" <?php if(isset($_GET['status']) && $_GET['status'] == 'filled'): ?> selected <?php endif; ?>><?php echo trans('texts.filled'); ?></option>
+	    <option value="partly filled" <?php if(isset($_GET['status']) && $_GET['status'] == 'partly filled'): ?> selected <?php endif; ?>><?php echo trans('texts.partly_filled'); ?></option>            
+	</select>
+	<button type="submit" class="btn btn-primary" name="do_filter"><?php echo trans('texts.filter'); ?></button>
+</form>
+<div id="messages"></div>
+<table class="table table-striped" id="list-fees">
+	<tr>
+	 	<th><?php echo trans('admin_texts.order_id'); ?></th>
+	 	<th><?php echo trans('admin_texts.user_id'); ?></th>
+	 	<th><?php echo e(trans('texts.market')); ?></th>
+	 	<th><?php echo trans('admin_texts.type'); ?></th>	 	
+	 	<th><?php echo trans('admin_texts.date'); ?></th>
+	 	<th><?php echo trans('admin_texts.price'); ?></th>
+	 	<th><?php echo trans('admin_texts.amount'); ?></th>
+	 	<th><?php echo trans('admin_texts.total'); ?></th>
+	 	<th><?php echo e(trans('texts.status')); ?></th>
+	</tr> 
+	<?php $active = array('active','partly filled'); ?>
+        <?php foreach($ordershistories as $ordershistory): ?>
+            <?php if(isset($markets[$ordershistory->market_id])): ?>
+                <tr>
+                	<td><?php echo $ordershistory->id; ?></td>
+                	<td><?php echo $ordershistory->username; ?></td>
+                    <td><?php echo $markets[$ordershistory->market_id]['wallet_from'].'/'.$markets[$ordershistory->market_id]['wallet_to']; ?></td>
+                    <?php if($ordershistory->type == 'sell'): ?>          
+                        <td><b style="color:red"><?php echo ucwords($ordershistory->type); ?></b></td>            
+                    <?php else: ?>          
+                        <td><b style="color:green"><?php echo ucwords($ordershistory->type); ?></b></td>            
+                     <?php endif; ?>
+                     <td><?php echo $ordershistory->created_at; ?></td>
+                    <td><?php echo sprintf('%.8f',$ordershistory->price); ?></td>
+                    <td><?php echo sprintf('%.8f',$ordershistory->from_value); ?></td>
+                    <td><?php echo sprintf('%.8f',$ordershistory->to_value); ?></td>
+                    <td><strong><?php echo $ordershistory->status; ?></strong></td>
+                    <!-- <td><?php if(in_array($ordershistory->status,$active)): ?> <a href="javascript:cancelOrder(<?php echo e($ordershistory->id); ?>);"><?php echo trans('texts.cancel'); ?></a> <?php endif; ?></td> -->
+                </tr>
+            <?php endif; ?>
+        <?php endforeach; ?> 
+</table>
+<div id="pager"></div>
+<script type='text/javascript'>
+    var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){
+        	return "<?php echo URL::to('admin/manage/orders'); ?>"+'/'+page+'<?php echo "?".$query_string ?>'; 
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

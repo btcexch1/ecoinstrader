@@ -1,0 +1,25 @@
+<div class="content-inbox">
+  <h3><?php echo e(trans('texts.top_sell_orders')); ?></h3>
+  <div id="orders-s-list">   
+    <div id="orders_sell_<?php echo e(Session::get('market_id')); ?>" class="scrolltable">
+      <table class="table striped hovered">
+        <thead>
+          <tr class="header-tb"><th><?php echo e(trans('texts.price')); ?></th><th><?php echo e($coinmain); ?></th><th><?php echo e($coinsecond); ?></th></tr>
+        </thead>
+        <tbody>
+          <?php $total_amount=0;  $total_value=0; ?>     
+          <?php foreach($sell_orders as $sell_order): ?>
+           <?php  
+            $total_amount+= $sell_order->total_from_value; 
+            $total_value+= $sell_order->total_to_value;
+            $price = sprintf('%.8f',$sell_order->price);
+            $class_price = str_replace(".", "-", $price);
+            $class_price = str_replace(",", "-", $class_price);
+           ?>
+            <tr id="order-<?php echo $sell_order->id; ?>" class="order price-<?php echo $class_price; ?>" onclick="use_price(1,<?php echo $sell_order->price ?>,<?php echo $sell_order->total_from_value ?>)" data-sort="<?php echo e(sprintf('%.8f',$sell_order->price)); ?>"><td class="price"><?php echo e(sprintf('%.8f',$sell_order->price)); ?></td><td class="amount"><?php echo e(sprintf('%.8f',$sell_order->total_from_value)); ?></td><td class="total"><?php echo e(sprintf('%.8f',$sell_order->total_to_value)); ?></td></tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+      </div>
+  </div>
+</div>

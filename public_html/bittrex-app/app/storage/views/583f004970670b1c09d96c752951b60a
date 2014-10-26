@@ -1,0 +1,75 @@
+<!-- Orders History -->
+<?php $__env->startSection('title'); ?>
+<?php echo e(trans('texts.transfer_out')); ?>
+<?php $__env->stopSection(); ?>
+<?php
+$query_string = '';
+foreach (Request::query() as $key => $value) {
+    if($key!='pager_page')
+    $query_string .= $key."=".$value."&";
+}
+$query_string = trim($query_string,'&');
+if(!empty($query_string)) $query_string = "&".$query_string;
+?>
+<div id="transferout">
+    <h2><?php echo e(trans('texts.transfer_out')); ?> <?php if(isset($current_coin)): ?> <?php echo ' - '.$current_coin; ?> <?php endif; ?></h2>
+    <?php if($filter==''): ?>
+    <form class="form-inline" method="GET" action="<?php echo Request::url(); ?>">        
+        <div class="input-control text size1">
+            <label><?php echo e(trans('texts.wallet')); ?></label>
+        </div>
+        <div class="input-control text size2">
+            <select id="pair" style="margin-right: 20px;" name="wallet">
+                <option value="" <?php if(isset($_GET['wallet']) == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+                <?php foreach($wallets as $key=> $wallet): ?>
+                    <option value="<?php echo $wallet['id']; ?>" <?php if(isset($_GET['wallet']) && $_GET['wallet']==$wallet['id']): ?> selected <?php endif; ?>><?php echo $wallet['type']; ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="input-control text size1">
+            <button type="submit" class="btn btn-primary" name="do_filter"><?php echo trans('texts.filter'); ?></button>
+        </div>
+    </form>
+    <?php endif; ?>
+    <table class="table striped hovered">
+        <thead>
+        <tr>
+            <th><?php echo e(trans('texts.wallet')); ?></th>
+            <th><?php echo e(trans('texts.receiver')); ?></th>
+            <th><?php echo e(trans('texts.amount')); ?></th>
+            <th><?php echo e(trans('texts.date')); ?></th>
+        </tr> 
+        </thead>
+        <tbody>      
+        <?php foreach($transferouts as $transferout): ?>
+            <tr>                
+                <td><?php echo $transferout->type; ?></td>
+                <td><?php echo $transferout->username; ?></td>
+                <td><?php echo sprintf('%.8f',$transferout->amount); ?></td>
+                <td><?php echo $transferout->created_at; ?></td>                
+            </tr>
+        <?php endforeach; ?>  
+        </tbody>
+    </table>
+    <div id="pager"></div>
+</div>
+<?php $__env->startSection('script.footer'); ?>
+@parent
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<script type="text/javascript">
+var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){
+            <?php
+            if(empty($filter)){ ?>
+            return "<?php echo URL::to('user/profile/viewtranferout'); ?>"+'?pager_page='+page+'<?php echo $query_string ?>'; 
+        <?php }else{ ?> return "<?php echo URL::to('user/profile/viewtranferout').'/'.$filter; ?>"+'?pager_page='+page+'<?php echo $query_string ?>'; 
+         <?php } ?>
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+    $('#pager').find('ul').addClass('pagination');
+</script>
+<?php $__env->stopSection(); ?>

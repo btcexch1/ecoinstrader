@@ -1,0 +1,135 @@
+<!-- Orders History -->
+<?php $__env->startSection('title'); ?>
+<?php echo e(trans('texts.orders_history')); ?>
+<?php $__env->stopSection(); ?>
+<?php
+$query_string = '';
+foreach (Request::query() as $key => $value) {
+    if($key!='pager_page') $query_string .= $key."=".$value."&";
+}
+$query_string = trim($query_string,'&');
+if($query_string!='') $query_string = "&".$query_string;
+?>
+<div id="orders_history">
+    <h2><?php echo e(trans('texts.orders_history')); ?> <?php if(isset($current_coin)): ?> <?php echo ' - '.$current_coin; ?> <?php endif; ?></h2>
+
+    <form class="form-inline" method="GET" action="<?php echo Request::url(); ?>">
+        <?php if($filter==''): ?>
+            <div class="input-control text size1">
+                <label><?php echo e(trans('texts.market')); ?></label>
+            </div>
+            <div class="input-control text size2">
+                <select id="pair" style="margin-right: 20px;" name="market">
+                     <option value="" <?php if(isset($_GET['market']) == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+                    <?php foreach($markets as $key=> $market): ?>
+                        <option value="<?php echo $market['id']; ?>" <?php if(isset($_GET['market']) && $_GET['market']==$market['id']): ?> selected <?php endif; ?>><?php echo strtoupper($market['wallet_from'].'/'.$market['wallet_to']); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        <?php endif; ?>       
+        <div class="input-control text size1">
+            <label><?php echo e(trans('texts.type')); ?></label>
+        </div>
+        <div class="input-control text size2">
+            <select id="type" name="type" style="margin-right: 20px;">
+                <option value="" <?php if(isset($_GET['type']) == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+                <option value="sell" <?php if(isset($_GET['type']) && $_GET['type'] == 'sell'): ?> selected <?php endif; ?>><?php echo trans('texts.sell'); ?></option>
+                <option value="buy" <?php if(isset($_GET['type']) && $_GET['type'] == 'buy'): ?> selected <?php endif; ?>><?php echo trans('texts.buy'); ?></option>
+            </select>  
+        </div>
+        <div class="input-control text size1">
+            <label><?php echo e(trans('texts.show')); ?></label>
+        </div>
+        <div class="input-control text size2">
+             <select id="view" name="status">
+               <option value="" <?php if(isset($_GET['status']) == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+                <option value="active" <?php if(isset($_GET['status']) && $_GET['status'] == 'active'): ?> selected <?php endif; ?>><?php echo trans('texts.active'); ?></option>
+                <option value="filled" <?php if(isset($_GET['status']) && $_GET['status'] == 'filled'): ?> selected <?php endif; ?>><?php echo trans('texts.filled'); ?></option>
+                <option value="partly filled" <?php if(isset($_GET['status']) && $_GET['status'] == 'partly filled'): ?> selected <?php endif; ?>><?php echo trans('texts.partly_filled'); ?></option>           
+            </select> 
+        </div>
+        <div class="input-control text size1">
+            <button type="submit" class="btn btn-primary" name="do_filter"><?php echo trans('texts.filter'); ?></button>
+        </div>
+    </form>
+   
+    <table class="table striped hovered">
+        <thead>
+        <tr>
+            <th><?php echo e(trans('texts.market')); ?></th>
+            <th><?php echo e(trans('texts.type')); ?></th>
+            <th><?php echo e(trans('texts.price')); ?></th>
+            <th><?php echo e(trans('texts.amount')); ?></th>
+            <th><?php echo e(trans('texts.total')); ?></th>
+            <th><?php echo e(trans('texts.status')); ?></th>
+           <!--  <th><?php echo e(trans('texts.action')); ?></th> -->
+        </tr>
+        </thead>
+        <tbody>
+        <?php $active = array('active','partly filled'); ?>
+        <?php foreach($ordershistories as $ordershistory): ?>
+            <tr>
+                <td><?php echo $markets[$ordershistory->market_id]['wallet_from'].'/'.$markets[$ordershistory->market_id]['wallet_to']; ?></td>
+                <?php if($ordershistory->type == 'sell'): ?>          
+                    <td><b style="color:red"><?php echo ucwords($ordershistory->type); ?></b></td>            
+                <?php else: ?>          
+                    <td><b style="color:green"><?php echo ucwords($ordershistory->type); ?></b></td>            
+                 <?php endif; ?>
+                <td><?php echo sprintf('%.8f',$ordershistory->price); ?></td>
+                <td><?php echo sprintf('%.8f',$ordershistory->from_value); ?></td>
+                <td><?php echo sprintf('%.8f',$ordershistory->to_value); ?></td>
+                <td><?php echo $ordershistory->status; ?></td>
+                <!-- <td><?php if(in_array($ordershistory->status,$active)): ?> <a href="javascript:cancelOrder(<?php echo e($ordershistory->id); ?>);"><?php echo trans('texts.cancel'); ?></a> <?php endif; ?></td> -->
+            </tr>
+        <?php endforeach; ?>  
+        </tbody>
+    </table>
+    <div id="pager"></div>
+</div>
+<!-- Modals -->
+    
+    <div id="messageModal" class="modal hide fade" tabindex="-1" role="dialog">     
+        <div class="modal-body">        
+        </div>
+        <div class="modal-footer">
+            <button class="btn close-popup" data-dismiss="modal"><?php echo e(trans('texts.close')); ?></button>
+        </div>
+    </div>
+<?php $__env->startSection('script.footer'); ?>
+@parent
+<?php echo HTML::script('assets/js/bootstrap-modal.js'); ?>
+<script type="text/javascript">
+function cancelOrder(order_id){
+    $.post('<?php echo action('OrderController@doCancel')?>', {isAjax: 1, order_id: order_id }, function(response){
+      var obj = $.parseJSON(response); 
+      $('#messageModal .modal-body').html('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+      $('#messageModal').modal({show:true});         
+      if(obj.status == 'success'){
+        $('#messageModal button.close-popup') .click(function() {
+          location.reload();
+        }); 
+      }
+      console.log('Obj: ',obj);
+    });
+}
+</script>
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<script type="text/javascript">
+var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){ console.log('Page: ',page);
+            var url="<?php echo URL::to('user/profile/orders'); ?>";
+            <?php if(!empty($filter)){ ?>
+                url="<?php echo URL::to('user/profile/orders').'/'.$filter; ?>"; 
+            <?php }?>
+            console.log('url: ',url);
+            console.log('query_string: ','<?php echo $query_string ?>');
+            return url+'?pager_page='+page+'<?php echo $query_string ?>';
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+    $('#pager').find('ul').addClass('pagination');
+</script>
+<?php $__env->stopSection(); ?>

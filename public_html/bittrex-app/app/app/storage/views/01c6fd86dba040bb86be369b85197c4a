@@ -1,0 +1,130 @@
+<?php $__env->startSection('title'); ?>
+<?php echo Lang::get('user_texts.verify_account'); ?>
+<?php $__env->stopSection(); ?>
+<!-- Edit Profile -->
+<div id="edit_profile">
+    <h2><?php echo Lang::get('user_texts.verify_account'); ?></h2> 
+    <?php if( Session::get('error') ): ?>
+        <div class="notice marker-on-bottom bg-darkRed fg-white">
+            <?php if( is_array(Session::get('error')) ): ?>
+                <?php echo head(Session::get('error')); ?>
+            <?php else: ?>
+                <?php echo Session::get('error'); ?>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if( Session::get('notice') ): ?>
+        <div class="notice marker-on-bottom fg-white">            
+            <?php echo Session::get('notice'); ?>
+        </div>
+    <?php endif; ?>   
+    <form id="registerForm" method="POST" action="<?php echo e(Confide::checkAction('UserController@addInfoVerify') ?: URL::to('/user/add-infoverify')); ?>" enctype="multipart/form-data">    
+    <h3><?php echo Lang::get('user_texts.where_you'); ?></h3>
+    <table class="table register">
+        <tbody>
+            <tr>
+                <td style="width:180px;" align="right"><?php echo trans('user_texts.address'); ?> 1</td>
+                <td>                    
+                    <div class="input-control text size2">
+                        <input type="text" value="<?php if(isset($userinfo['address_1'])) echo $userinfo['address_1'] ?>" id="address_1" name="address_1" required minlength="2">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:180px;" align="right"><?php echo trans('user_texts.address'); ?></td>
+                <td><div class="input-control text size2">
+                        <input type="text" value="<?php if(isset($userinfo['address_2'])) echo $userinfo['address_2'] ?>" id="address_2" name="address_2" minlength="2">
+                    </div></td>
+            </tr>
+            <tr>
+                <td style="width:180px;" align="right"><?php echo trans('user_texts.city'); ?></td>
+                <td><div class="input-control text size2">
+                        <input type="text" value="<?php if(isset($userinfo['city'])) echo $userinfo['city'] ?>" id="city" name="city" required minlength="2">
+                    </div></td>
+            </tr>
+            <tr>
+                <td style="width:180px;" align="right"><?php echo trans('user_texts.postal_code'); ?></td>
+                <td><div class="input-control text size2">
+                        <input type="text" value="<?php if(isset($userinfo['postal_code'])) echo $userinfo['postal_code'] ?>" id="postal_code" name="postal_code" required minlength="2">
+                    </div></td>
+            </tr>
+            <tr>
+                <td style="width:180px;" align="right"><?php echo trans('user_texts.country'); ?></td>
+                <td><div class="input-control text size2">
+                        <input type="text" value="<?php if(isset($userinfo['country'])) echo $userinfo['country'] ?>" id="country" name="country" required minlength="2">
+                    </div></td>
+            </tr>
+            <tr>
+                <td style="width:180px;" align="right"><?php echo trans('user_texts.state_province'); ?></td>
+                <td><div class="input-control text size2">
+                        <input type="text" value="<?php if(isset($userinfo['state'])) echo $userinfo['state'] ?>" id="state" name="state" minlength="2" required>
+                    </div></td>
+            </tr>
+            <tr>
+                <td style="width:180px;" align="right"><?php echo trans('user_texts.date_birth'); ?></td>
+                <td>                        
+                    <div class="input-control text size3" data-role="datepicker" data-date='<?php if(isset($userinfo['date_birth'])) echo $userinfo['date_birth']; else echo date('Y-m-d'); ?>' data-format='yyyy-m-d' data-effect='slide' data-other-days='1' locale='<?php echo Session::get( 'locale' ); ?>'>
+                        <input type="text" value="<?php if(isset($userinfo['date_birth'])) echo $userinfo['date_birth'] ?>" id="date_birth" name="date_birth">                        
+                    </div>
+                </td>
+            </tr>
+            
+        </tbody>
+    </table>
+    <h3><?php echo Lang::get('user_texts.photo'); ?></h3>
+    <table class="table register">
+        <tbody>
+            <tr>
+                <td style="width:180px;" align="right"><?php echo trans('user_texts.government_photo'); ?></td>
+                <td><div class="input-control text size2">
+                        <input type="file" id="government_photo_1" name="government_photo_1" minlength="2">                        
+                    </div><br>
+                    <em><?php echo Lang::get('user_texts.note_government_photo'); ?></em><br>
+                    <em><?php echo Lang::get('user_texts.format_accept_1'); ?></em>
+                    <p><a href="javascript:void(0)" onclick="showImage('<?php echo asset('assets/img/id_example.png'); ?>');"><?php echo LAng::get('user_texts.view_example'); ?></a></p>
+                </td>
+                <td>
+                    <?php if(!empty($userinfo['government_photo_1'])): ?> <span><?php echo Lang::get('user_texts.current_photo'); ?></span> <img width="150" src="<?php echo asset($userinfo['government_photo_1']); ?>"> <?php endif; ?>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:180px;" align="right"><?php echo trans('user_texts.government_photo_face'); ?></td>
+                <td><div class="input-control text size2">
+                        <input type="file" id="government_photo_2" name="government_photo_2" minlength="2">                        
+                    </div><br>
+                    <em><?php echo Lang::get('user_texts.format_accept_1'); ?></em>
+                    <p><a href="javascript:void(0)" onclick="showImage('<?php echo asset('assets/img/nonuseg.jpg'); ?>');"><?php echo LAng::get('user_texts.view_example'); ?></a></p>
+                </td>
+                <td><?php if(!empty($userinfo['government_photo_2'])): ?> <span><?php echo Lang::get('user_texts.current_photo'); ?></span> <img width="150" src="<?php echo asset($userinfo['government_photo_2']); ?>"> <?php endif; ?></td>
+            </tr>
+            <tr>
+                <td style="width:180px;" align="right"><?php echo trans('user_texts.utility_bill'); ?></td>
+                <td><div class="input-control text size2">
+                        <input type="file" id="utility_bill" name="utility_bill" minlength="2">                        
+                    </div><br>
+                    <em><?php echo Lang::get('user_texts.format_accept_2'); ?></em>
+                    <p><a href="javascript:void(0)" onclick="showImage('<?php echo asset('assets/img/bill_example.gif'); ?>');"><?php echo LAng::get('user_texts.view_example'); ?></a></p>
+                </td>
+                <td><?php if(!empty($userinfo['utility_bill'])): ?> <span><?php echo Lang::get('user_texts.current_photo'); ?></span> <img width="150" src="<?php echo asset($userinfo['utility_bill']); ?>"> <?php endif; ?></td>
+            </tr>
+        </tbody>
+    </table>    
+    <br><br>   
+   <button type="submit" class="btn btn-primary"><?php echo Lang::get('user_texts.verify_account'); ?></button>
+    <br><br>
+    </form>
+</div>
+<?php $__env->startSection('script.footer'); ?>
+@parent
+<?php echo HTML::script('assets/vendors/metro-ui/js/metro-calendar.js'); ?>
+<?php echo HTML::script('assets/vendors/metro-ui/js/metro-datepicker.js'); ?>
+<script type="text/javascript">
+    function showImage(url){
+        $.Dialog({  shadow: true, overlay: true, draggable: true, icon: '', title: '', width: '40%', height:'40%',  padding: 10, content: 'This Window is draggable by caption.',  onShow: function(){  $.Dialog.content('<img src="'+url+'" />'); } });
+        return false;
+    }    
+    jQuery(document).ready(function($) {
+    });
+</script>
+<?php $__env->stopSection(); ?>

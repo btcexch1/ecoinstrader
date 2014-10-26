@@ -1,0 +1,160 @@
+<?php $__env->startSection('content'); ?>	
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<h2>Withdraw </h2>
+
+<?php if( is_array(Session::get('error')) ): ?>
+        <div class="alert alert-error"><?php echo head(Session::get('error')); ?></div>
+	<?php elseif( Session::get('error') ): ?>
+      <div class="alert alert-error"><?php echo e(Session::get('error')); ?></div>
+	<?php endif; ?>
+	<?php if( Session::get('success') ): ?>
+      <div class="alert alert-success"><?php echo e(Session::get('success')); ?></div>
+	<?php endif; ?>
+
+	<?php if( Session::get('notice') ): ?>
+	      <div class="alert"><?php echo e(Session::get('notice')); ?></div>
+	<?php endif; ?>
+<a href="javascript:void()" id="add_wallet_link"><?php echo Lang::get('admin_texts.add_new_method'); ?></a>
+
+<form class="form-horizontal" role="form" id="add_new_wallet" method="POST" action="<?php echo e(URL::to('/admin/add-method-withdraw')); ?>">
+	<input type="hidden" name="_token" value="<?php echo e(Session::getToken()); ?>">
+	<div class="form-group">
+	    <label for="inputEmail3" class="col-sm-2 control-label"><?php echo Lang::get('admin_texts.method_name'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input type="text" class="form-control" required="" name="wname" id="wname" value="">
+			</div>	      	      
+	    </div>
+	</div>	
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo Lang::get('admin_texts.method_fee'); ?> %</label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input type="text" name="wfee" id="wfee"  class="form-control" value="">
+			</div>	      
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo Lang::get('admin_texts.method_min_value'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			  <input minlength="2" type="text"  class="form-control" name="wmin" id="wmin" value="">			  
+			</div>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo Lang::get('admin_texts.method_description'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			 <textarea type="text" cols="28" rows="5" name="wdes" id="wdes" class="form-control"  value=""></textarea>	  		  
+			</div>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <label for="inputPassword3" class="col-sm-2 control-label"><?php echo Lang::get('admin_texts.method_min_fee'); ?></label>
+	    <div class="col-sm-10">
+	    	<div class="input-append">
+			 <input type="text" name="wminfee" id="wminfee" class="form-control"  value="">  		  
+			</div>
+	    </div>
+	</div>
+	
+	<div class="form-group">		
+	    <div class="col-sm-offset-2 col-sm-10">
+	      <button type="submit" class="btn btn-primary" id="do_add"><?php echo Lang::get('admin_texts.add'); ?></button>
+	    </div>
+	</div>
+</form>
+<table class="table table-striped" id="list-fees">
+	<tr>	 	
+	 	<th><?php echo Lang::get('admin_texts.method_name'); ?></th>
+	 	<th><?php echo Lang::get('admin_texts.method_fee'); ?></th>	 	
+	 	<th><?php echo Lang::get('admin_texts.method_min_value'); ?></th>
+	 	<th><?php echo Lang::get('admin_texts.method_description'); ?></th>	 	
+	 	<th><?php echo Lang::get('admin_texts.method_min_fee'); ?></th>	 	
+	 	<th><?php echo Lang::get('admin_texts.action'); ?></th>	 	
+	</tr> 	
+	<?php foreach($MethodWithdrawCurrency as $method): ?>
+	<tr><td><?php echo $method->wname; ?></td><td><?php echo $method->wfee; ?></td><td><?php echo $method->wmin; ?></td><td><?php echo $method->wdes; ?></td><td><?php echo $method->wminfee; ?></td><td><a href="<?php echo URL::to('admin/edit-method-withdraw'); ?>/<?php echo $method->id; ?>" class="edit_wallet"><?php echo trans('admin_texts.edit'); ?></a>  | <a href="javascript:void()" onclick="deleteMethodWithdraw(<?php echo $method->id; ?>)" class="delete_wallet"><?php echo trans('admin_texts.delete'); ?></a></td></tr>
+	<?php endforeach; ?>	
+</table>
+<div id="pager"></div>
+<div id="messageModal" class="modal hide fade" tabindex="-1" role="dialog">		
+	<div class="modal-body">		
+	</div>
+	<div class="modal-footer">
+		<button class="btn close-popup" data-dismiss="modal"><?php echo e(trans('texts.close')); ?></button>
+	</div>
+</div>
+<?php echo HTML::script('assets/js/jquery.validate.min.js'); ?>
+<script type="text/javascript">
+function deleteMethodWithdraw(wallet_id){
+	$.post('<?php echo action('Admin_SettingController@deleteMethodWithdraw')?>', {isAjax: 1, wallet_id: wallet_id }, function(response){
+       	var obj = $.parseJSON(response);
+	    console.log('obj: ',obj);
+	    if(obj.status == 'success'){
+            $('#messageModal .modal-body').html('<p style="color:#008B5D; font-weight:bold;text-align:center;">'+obj.message+'</p>');            
+            $('#messageModal').on('hidden.bs.modal', function (e) {              
+              location.reload();
+            });
+        }else{
+            $('#messageModal .modal-body').html('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+        }
+        $('#messageModal').modal({show:true, keyboard:false}); 
+    });
+    return false;
+}
+
+    $(document).ready(function() {
+    	$('#add_new_wallet').hide();
+        $('#add_wallet_link').click(function(event) {
+        	$('#add_new_wallet').toggle("slow");
+        });
+        $("#add_new_wallet").validate({
+            rules: {
+                wname: "required",             
+                wfee: {
+                    required: true,
+                    number: true
+                },
+                wmin: {
+                    required: true,
+                    number: true
+                },
+                wminfee: {
+                    required: true,
+                    number: true
+                }
+            },
+            messages: {
+                wname: "Please provide a name of method.",
+                wfee: {
+                    required: "Please provide a fee.",
+                    number: "Fee must be a number."
+                },              
+                wmin: {
+                    required: "Please provide a minimum value.",
+                    number: "Please enter a number."
+                },  
+                wminfee: {
+                    required: "Please provide a minimum fee.",
+                    number: "Please enter a number."
+                },  
+            }
+	});
+
+   });
+</script>
+<script type='text/javascript'>
+    var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){
+        	return "<?php echo URL::to('admin/manage/withdraw-USD'); ?>"+'/'+page; 
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

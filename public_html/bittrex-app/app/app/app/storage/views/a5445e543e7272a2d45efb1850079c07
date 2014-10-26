@@ -1,0 +1,29 @@
+<?php $__env->startSection('content'); ?>	
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<h2><?php echo trans('admin_texts.wallets'); ?></h2>
+<table class="table table-striped">
+	<tr>	 	
+	 	<th><?php echo trans('admin_texts.coin_code'); ?></th>
+	 	<th><?php echo trans('admin_texts.coin_name'); ?></th>	 	
+	 	<th><?php echo trans('admin_texts.balance'); ?></th>
+	 	<th><?php echo trans('admin_texts.total_deposit'); ?></th>	 	
+	 	<th><?php echo trans('admin_texts.total_withdraw'); ?></th>
+	</tr> 	
+	<?php foreach($wallets as $wallet): ?>
+	<tr><td><?php echo $wallet->type; ?></td><td><?php echo $wallet->name; ?></td><td><?php echo $balances[$wallet->id]; ?></td><td><?php echo $amount_transaction[$wallet->id]['total_amount_deposit']; ?></td><td><?php echo $amount_transaction[$wallet->id]['total_amount_withdraw']; ?></td></tr>
+	<?php endforeach; ?>	
+</table>
+<div id="pager"></div>
+<script type='text/javascript'>
+    var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){
+        	return "<?php echo URL::to('admin/manage/balance-wallets'); ?>"+'/'+page; 
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

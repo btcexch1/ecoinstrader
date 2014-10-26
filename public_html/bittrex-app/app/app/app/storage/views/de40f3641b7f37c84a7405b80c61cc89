@@ -1,0 +1,31 @@
+<?php $__env->startSection('title'); ?>
+<?php echo Lang::get('frontend_texts.forgetpass'); ?>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('body'); ?>
+<div class="container">
+    <div class="content">
+        <div id="forgetpass" class="formuser">
+            <h2><?php echo Lang::get('frontend_texts.forgetpass'); ?></h2>
+            <hr>
+            <?php if( Session::get('error') ): ?>
+            <div class="notice marker-on-bottom bg-darkRed fg-white"><?php echo e(Session::get('error')); ?></div>
+            <?php endif; ?>
+
+            <?php if( Session::get('notice') ): ?>
+            <div class="notice marker-on-bottom fg-white"><?php echo e(Session::get('notice')); ?></div>
+            <?php endif; ?>
+            <form method="POST" action="<?php echo (Confide::checkAction('UserController@do_forgot_password')) ?: URL::to('/user/forgot'); ?>" accept-charset="UTF-8">
+            <input type="hidden" name="_token" value="<?php echo e(Session::getToken()); ?>">            
+            <div class="input-control text">
+              <input class="form-control" placeholder="<?php echo e(Lang::get('confide::confide.e_mail')); ?>" type="text" name="email" id="email" value="<?php echo e(Input::old('email')); ?>">
+              <button class="btn-clear"></button>
+            </div>
+            <button class="button primary" type="submit" value=""><?php echo e(Lang::get('confide::confide.forgot.submit')); ?></button>
+        </form>
+        </div>
+    </div>
+</div>
+<!-- End Reset password -->
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.main', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

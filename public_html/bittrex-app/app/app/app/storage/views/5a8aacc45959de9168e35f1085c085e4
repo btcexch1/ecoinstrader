@@ -1,0 +1,67 @@
+<h3><?php echo e(trans('texts.your_orders')); ?></h3>  
+<div id="yourorders_<?php echo e(Session::get('market_id')); ?>">
+  <table class="table striped hovered">
+    <thead>
+      <tr><th><?php echo e(trans('texts.type')); ?></th><th><?php echo e(trans('texts.price')); ?> 1 <?php echo e($coinmain); ?></th><th><?php echo e(trans('texts.amount')); ?> <?php echo e($coinmain); ?></th><th><?php echo e(trans('texts.total')); ?> <?php echo e($coinsecond); ?></th><th><?php echo e(trans('texts.date')); ?></th><th><?php echo e(trans('texts.action')); ?></th></tr>
+    </thead>
+    <tbody>        
+      <?php if(isset($current_orders_user)): ?>
+        <tr style="display:none" class="header-tb"><td colspan="5"></td></tr>
+        <?php foreach($current_orders_user as $order): ?> 
+           <?php
+            $price = sprintf('%.8f',$order->price);
+            $class_price = str_replace(".", "-", $price);
+            $class_price = str_replace(",", "-", $class_price);
+          ?>
+          <tr class="order order-<?php echo $class_price; ?>" id="yourorder-<?php echo $order->id; ?>">
+          <?php if($order->type == 'sell'): ?>          
+            <td><b style="color:red"><?php echo ucwords($order->type); ?></b></td>            
+          <?php else: ?>          
+            <td><b style="color:green"><?php echo ucwords($order->type); ?></b></td>            
+          <?php endif; ?>         
+            <td><span class="price"><?php echo e(sprintf('%.8f',$order->price)); ?></span></td><td><span class="amount"><?php echo e(sprintf('%.8f',$order->from_value)); ?></span><span style="color:#868686"></span></td>
+            <td><span class="total"><?php echo e(sprintf('%.8f',$order->to_value)); ?></span><span style="color:#868686"></span></td>
+            <td><span><?php echo e($order->created_at); ?></span></td><!-- title="26 sec. ago" -->
+            <td><a href="javascript:cancelOrder(<?php echo e($order->id); ?>);"><?php echo trans('texts.cancel'); ?></a></td>
+          </tr>
+        <?php endforeach; ?> 
+      <?php endif; ?>
+    </tbody>
+  </table>
+  </div>
+<?php $__env->startSection('script.footer'); ?>
+@parent
+<script>
+function cancelOrder(order_id){
+        $.post('<?php echo action('OrderController@doCancel')?>', {isAjax: 1, order_id: order_id }, function(response){
+              var obj = $.parseJSON(response); 
+              if(obj.status == 'success'){
+                socket.emit( 'doTrade', obj.message_socket);
+                //app.BrainSocket.message('doTrade',obj.message_socket);               
+                $.Dialog({ shadow: true, overlay: true, draggable: true, icon: '', title: 'Message', width: 500, padding: 10, content: 'This Window is draggable by caption.',
+                    sysButtons: {                 
+                        btnClose: true
+                    },
+                    sysBtnCloseClick: function(e){
+                        location.reload();
+                    },              
+                    onShow: function(){
+                        //$.Dialog.title();
+                        $.Dialog.content('<p style="color:#008B5D; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+                        $('body').click(function(event) {
+                          location.reload();
+                        });
+                    }
+
+                  });
+              }else{
+                //$('#messageModal .modal-body').html('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>');
+                $.Dialog({ shadow: true, overlay: true, draggable: true, icon: '', title: 'Message', width: 500, content: 'This Window is draggable by caption.',  onShow: function(){ $.Dialog.content('<p style="color:red; font-weight:bold;text-align:center;">'+obj.message+'</p>'); }
+                });
+              }              
+              //$('#messageModal').modal({show:true});  
+              //console.log('Obj: ',obj);
+            });
+      }
+</script>
+<?php $__env->stopSection(); ?>

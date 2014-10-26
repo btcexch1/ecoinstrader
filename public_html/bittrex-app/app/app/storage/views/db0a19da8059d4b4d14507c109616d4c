@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        <?php $__env->startSection('title'); ?>
+        BTC Trading <?php echo $__env->yieldSection(); ?>
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
+    <!-- CSS are placed here -->
+    <?php echo HTML::style('assets/css/bootstrap.css'); ?>
+    <?php echo HTML::style('assets/css/bootstrap-responsive.css'); ?>  
+    <?php echo HTML::style('assets/superfish/css/superfish.css'); ?>
+    <?php echo HTML::style('assets/css/base.css'); ?>  
+    <?php echo HTML::style('assets/css/admin/style.css'); ?>
+    <!-- Scripts are placed here -->
+
+    <?php echo HTML::script('assets/js/jquery-1.10.2.min.js'); ?> 
+    <?php echo HTML::script('assets/js/bootstrap.min.js'); ?>
+    <?php echo HTML::script('assets/superfish/js/hoverIntent.js'); ?>
+    <?php echo HTML::script('assets/superfish/js/superfish.js'); ?>
+</head>
+
+<body>
+
+<!-- Container -->
+
+    <!-- Header -->
+    <?php echo $__env->make('admin.layouts.header', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+    <!-- End Header -->
+    <!-- Content -->
+    <!-- Main Content -->
+    <div id="container" class="clear">
+        <!-- Main content -->
+        <div class="main-contain">
+            <?php echo $__env->yieldContent('content'); ?>
+        </div>
+        <!-- Sidebar right -->
+        <?php if(isset($issidebar) && $issidebar){ ?>
+        <div class="sidebarright">
+            <?php echo $__env->yieldContent('sidebarright'); ?>
+        </div>
+        <?php } ?>
+    </div>
+    <!-- Footer -->
+    <?php echo $__env->make('admin.layouts.footer', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+</body>
+</html>

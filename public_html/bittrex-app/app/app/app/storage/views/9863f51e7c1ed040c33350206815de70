@@ -1,0 +1,71 @@
+<!-- Security -->
+<?php $__env->startSection('title'); ?>
+<?php echo e(trans('texts.coin_deposits')); ?>
+<?php $__env->stopSection(); ?>
+<div id="coin_deposits">
+    <h2><?php echo e(trans('texts.coin_deposits')); ?> <?php if(isset($current_coin)): ?> <?php echo ' - '.$current_coin; ?> <?php endif; ?></h2>    
+	Below is a list of deposits that you have made.
+	<br><br>
+	<span class="text-high">To make a new deposit, please visit the <?php echo HTML::link('user/profile/balances', trans('user_texts.balance')); ?> page and select the Deposit option under the actions menu for the coin.</span>
+	<br><br>
+	<form class="form-inline" method="POST" action="<?php echo Request::url(); ?>">
+        <?php if($filter==''): ?>
+        <div class="input-control text size1">
+		    <label><?php echo e(trans('texts.coin')); ?></label>
+		</div>
+		<div class="input-control text size2">
+		    <select id="pair" style="margin-right: 20px;" name="wallet">
+                <option value="" selected="selected"><?php echo trans('texts.all'); ?></option>
+                <?php foreach($wallets as $key=> $wallet): ?>
+                    <option value="<?php echo $wallet['id']; ?>"><?php echo $wallet->type; ?></option>
+                <?php endforeach; ?>
+            </select>
+		</div>
+                    
+            
+        <?php endif; ?>
+        <div class="input-control text size1">
+		    <label><?php echo e(trans('texts.type')); ?></label>
+		</div>
+		<div class="input-control text size2">
+		    <select id="type" name="status" style="margin-right: 20px;">
+	            <option value="" selected="selected"><?php echo trans('texts.all'); ?></option>
+	            <option value="0"><?php echo trans('texts.pending'); ?></option>
+	            <option value="1"><?php echo trans('texts.complete'); ?></option>
+	        </select>  
+		</div>
+        <div class="input-control text size1">
+		    <button type="submit" class="btn btn-primary" name="do_filter"><?php echo trans('texts.filter'); ?></button>
+		</div>
+    </form>
+    <br>
+	<table class="table striped hovered">
+        <thead>
+        	<tr>
+	            <th><?php echo e(trans('texts.date')); ?></th>
+	            <th><?php echo e(trans('texts.coin')); ?></th>
+	            <th><?php echo e(trans('texts.amount')); ?></th>
+	            <th><?php echo e(trans('texts.sending_address')); ?></th>
+	            <th><?php echo e(trans('texts.confirmations')); ?></th>
+	            <th><?php echo e(trans('texts.status')); ?></th>	            
+	        </tr>
+        </thead>	
+        <tbody>
+	        <?php foreach($deposits as $deposit): ?>
+	        	<tr>
+	        		<td><?php echo $deposit->created_at; ?></td>
+	        		<td><?php echo $deposit->type; ?></td>
+	        		<td><?php echo $deposit->amount; ?></td>
+	        		<td><?php echo $deposit->address; ?></td>
+	        		<td><?php echo $deposit->confirmations; ?></td>
+	        		<?php if($deposit->paid): ?>          
+                        <td><b style="color:green"><?php echo ucwords(trans('texts.complete')); ?></b></td>  
+	                <?php else: ?>  
+	                	<td><b style="color:red"><?php echo ucwords(trans('texts.pending')); ?></b></td> 
+	                <?php endif; ?>	        		
+	        	</tr>
+	        	<tr><td align="center" colspan="6">TrxID: <?php echo $deposit->transaction_id; ?></td></tr>
+	        <?php endforeach; ?>
+	    </tbody>
+	</table>
+</div>

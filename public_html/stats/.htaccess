@@ -1,0 +1,7 @@
+AuthName "mekongonline.vn statistics"
+AuthType Basic
+AuthUserFile /home/mekongonline/.stats-htpasswd
+require valid-user
+<Files .stats-htpasswd>
+deny from all
+</Files>

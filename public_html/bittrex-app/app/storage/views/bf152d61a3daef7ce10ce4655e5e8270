@@ -1,0 +1,10 @@
+<h1><?php echo Lang::get('confide::confide.email.password_reset.subject'); ?></h1>
+
+<p><?php echo Lang::get('confide::confide.email.password_reset.greetings', array( 'name' => $user->username)); ?>,</p>
+
+<p><?php echo Lang::get('confide::confide.email.password_reset.body'); ?></p>
+<a href='<?php echo e((Confide::checkAction('UserController@reset_password', array($token))) ? : URL::to('user/reset/'.$token)); ?>'>
+    <?php echo e((Confide::checkAction('UserController@reset_password', array($token))) ? : URL::to('user/reset/'.$token)); ?>
+</a>
+
+<p><?php echo Lang::get('confide::confide.email.password_reset.farewell'); ?></p>

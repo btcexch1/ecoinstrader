@@ -1,0 +1,191 @@
+<?php $__env->startSection('content'); ?>	
+<?php echo HTML::script('assets/js/colorPicker.js'); ?>
+<h2><?php echo trans('admin_texts.general'); ?></h2>
+<form class="form-horizontal" role="form" method="POST" action="<?php echo e(Confide::checkAction('Admin_SettingController@updateSetting') ?: URL::to('/admin/update-setting')); ?>" enctype="multipart/form-data" id="setting_general">
+	<?php if( Session::get('error') ): ?>
+      <div class="alert alert-error"><?php echo e(Session::get('error')); ?></div>
+	<?php endif; ?>
+	<?php if( Session::get('success') ): ?>
+      <div class="alert alert-success"><?php echo e(Session::get('success')); ?></div>
+	<?php endif; ?>
+
+	<?php if( Session::get('notice') ): ?>
+	    <div class="alert"><?php echo e(Session::get('notice')); ?></div>
+	<?php endif; ?>
+	<div class="form-group">
+	    <div class="col-sm-offset-2 col-sm-10">
+	      <div class="checkbox">
+	        <label>
+	          <input type="checkbox" <?php if($site_mode): ?> <?php echo 'checked'; ?> <?php endif; ?> id="site_mode" name="site_mode" value="1"> <?php echo trans('admin_texts.site_maintenance_mode'); ?>
+	        </label>
+	      </div>
+	    </div>
+  	</div>	
+	<div class="form-group">
+	    <div class="col-sm-offset-2 col-sm-10">
+	      <div class="checkbox">
+	        <label>
+	          <input type="checkbox" <?php if($disable_withdraw): ?> <?php echo 'checked'; ?> <?php endif; ?> id="disable_withdraw" name="disable_withdraw" value="1"> <?php echo trans('admin_texts.disable_withdraw'); ?>
+	        </label>
+	      </div>
+	    </div>
+  	</div>
+  	
+  	<div class="form-group">
+		<label for="inputPassword3" class="col-sm-2 control-label"><?php echo trans('admin_texts.amount_btc_per_vote'); ?></label>
+		<div class="col-lg-10">
+			<input type="text" class="form-control" id="amount_btc_per_vote" name="amount_btc_per_vote" value="<?php echo $amount_btc_per_vote; ?>">
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="inputPassword3" class="col-sm-2 control-label"><?php echo e(trans('admin_texts.market_default')); ?></label>
+		<div class="col-lg-10">
+			<select id="pair" class="form-control" name="default_market">		        
+		        <?php foreach($markets as $key=> $market): ?>
+		            <option value="<?php echo $market['id']; ?>" <?php if($default_market==$market['id']): ?> selected <?php endif; ?>><?php echo strtoupper($market['wallet_from'].'/'.$market['wallet_to']); ?></option>
+		        <?php endforeach; ?>
+		    </select>
+		</div>
+	</div>	
+	<div class="form-group">
+		<label for="inputPassword3" class="col-sm-2 control-label"><?php echo trans('admin_texts.max_amount_funds'); ?></label>
+		<div class="col-lg-10">
+			<div class="input-append">					
+			  <input type="text" class="form-control" id="max_amount_funds" name="max_amount_funds" value="<?php echo $max_amount_funds; ?>">
+			  <span class="add-on">USD</span>
+			</div>				
+			<p><em><?php echo Lang::get('admin_texts.note_max_amount_funds'); ?></em></p>
+		</div>
+	</div>
+	<!-- Point -->
+	<h3><?php echo trans('admin_texts.site_points'); ?></h3>
+	<div>
+		<div class="form-group">
+		    <div class="col-sm-offset-2 col-sm-10">
+		      <div class="checkbox">
+		        <label>
+		          <input type="checkbox" <?php if($disable_points): ?> <?php echo 'checked'; ?> <?php endif; ?> id="disable_points" name="disable_points" value="1"> <?php echo trans('admin_texts.disable_points'); ?>
+		        </label>
+		      </div>
+		    </div>
+	  	</div>
+	  	<div class="form-group">
+			<label for="inputPassword3" class="col-sm-2 control-label"><?php echo trans('admin_texts.each_points'); ?> <span>=</span></label>
+			<div class="col-lg-10">				
+				<div class="input-append">					
+				  <input type="text" class="form-control" id="point_per_btc" name="point_per_btc" value="<?php echo $point_per_btc; ?>">
+				  <span class="add-on">BTC</span>
+				</div>			
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="inputPassword3" class="col-sm-2 control-label"><?php echo trans('admin_texts.percent_point_reward_trade'); ?></label>
+			<div class="col-lg-10">
+				<div class="input-append">
+					<input type="text" class="form-control" id="percent_point_reward_trade" name="percent_point_reward_trade" value="<?php echo $percent_point_reward_trade; ?>">
+					<span class="add-on">%</span>
+				</div>
+			</div>
+		</div>
+		<div class="form-group clear">
+			<label for="inputPassword3" class="col-sm-2 control-label"><?php echo trans('admin_texts.percent_point_reward_referred_trade'); ?></label>
+			<div class="col-lg-10">
+				<div class="input-append">
+					<input type="text" class="form-control" id="percent_point_reward_referred_trade" name="percent_point_reward_referred_trade" value="<?php echo $percent_point_reward_referred_trade; ?>">
+					<span class="add-on">%</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+  	<!-- End point -->
+
+  	<h3 class="clear">Google Captcha</h3>
+	<div class="form-group">
+		<label for="inputPassword3" class="col-sm-2 control-label"><?php echo trans('admin_texts.publuckey'); ?></label>
+		<div class="col-lg-10">
+			<input type="text" class="form-control" id="recaptcha_publickey" name="recaptcha_publickey" value="<?php echo $recaptcha_publickey; ?>" required>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="inputPassword3" class="col-sm-2 control-label"><?php echo trans('admin_texts.privatekey'); ?></label>
+		<div class="col-lg-10">
+			<input type="text" class="form-control" id="recaptcha_privatekey" name="recaptcha_privatekey" value="<?php echo $recaptcha_privatekey; ?>" required>
+		</div>
+	</div>
+	<h3>App Credentials of Pusher</h3>
+	<div class="form-group">
+		<label class="col-sm-2 control-label"><?php echo trans('admin_texts.app_id'); ?></label>
+		<div class="col-lg-10">
+			<input type="text" class="form-control" id="pusher_app_id" name="pusher_app_id" value="<?php echo $pusher_app_id; ?>" required>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label"><?php echo trans('admin_texts.key'); ?></label>
+		<div class="col-lg-10">
+			<input type="text" class="form-control" id="pusher_app_key" name="pusher_app_key" value="<?php echo $pusher_app_key; ?>" required>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label"><?php echo trans('admin_texts.secret'); ?></label>
+		<div class="col-lg-10">
+			<input type="text" class="form-control" id="pusher_app_secret" name="pusher_app_secret" value="<?php echo $pusher_app_secret; ?>" required>
+		</div>
+	</div>
+	<div class="form-group">
+	    <div class="col-sm-offset-2 col-sm-10">
+	      <button type="submit" class="btn btn-primary"><?php echo trans('admin_texts.save_settings'); ?></button>
+	    </div>
+	</div>
+</form>
+<?php echo HTML::script('assets/js/jquery.validate.min.js'); ?>
+<script type="text/javascript">
+(function($){ 
+	$(document).ready(function(){
+		$("#setting_general").validate({
+            rules: {
+            	amount_btc_per_vote: {			      
+			      number: true
+			    },
+			    point_per_btc: {
+			      required: true,
+			      number: true
+			    },
+			    max_amount_funds:{			      
+			      number: true
+			    },
+			    percent_point_reward_trade: {
+			      required: true,
+			      number: true
+			    },
+			    percent_point_reward_referred_trade: {
+			      required: true,
+			      number: true
+			    }                   
+            },
+            messages: {
+                amount_btc_per_vote: {                    
+                    number: "Please enter a number."
+                },
+                point_per_btc: {
+                    required: "Please enter a value.",
+                    number: "Please enter a number."
+                },
+                percent_point_reward_trade: {
+                    required: "Please enter a value.",
+                    number: "Please enter a number."
+                }, 
+                percent_point_reward_referred_trade: {
+                    required: "Please enter a value.",
+                    number: "Please enter a number."
+                },
+                max_amount_funds: {                    
+                    number: "Please enter a number."
+                }
+            }
+        });
+	});
+})(jQuery);
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

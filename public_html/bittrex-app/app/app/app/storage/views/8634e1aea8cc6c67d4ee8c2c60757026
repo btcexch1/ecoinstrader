@@ -1,0 +1,110 @@
+<?php $__env->startSection('title'); ?>
+<?php echo Lang::get('frontend_texts.account_profile'); ?>
+<?php $__env->stopSection(); ?>
+<!-- Edit Profile -->
+<div id="edit_profile">
+    <h2><?php echo Lang::get('frontend_texts.account_profile'); ?></h2> 
+    <?php if( Session::get('error') ): ?>
+        <div class="notice marker-on-bottom bg-darkRed fg-white">
+            <?php if( is_array(Session::get('error')) ): ?>
+                <?php echo head(Session::get('error')); ?>
+            <?php else: ?>
+                <?php echo Session::get('error'); ?>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if( Session::get('notice') ): ?>
+        <div class="notice marker-on-bottom fg-white">            
+            <?php echo Session::get('notice'); ?>
+        </div>
+    <?php endif; ?>   
+    <form id="registerForm" method="POST" action="<?php echo e(Confide::checkAction('UserController@updateSetting') ?: URL::to('/user/update-setting')); ?>">    
+    <h3><?php echo Lang::get('user_texts.your_details'); ?></h3>
+    <table class="table register">
+        <tbody>
+            <tr>
+                <th style="width:180px;"><?php echo trans('frontend_texts.firstname'); ?></th>
+                <td><input type="text" value="<?php echo $profile['firstname']; ?>" id="firstname" name="firstname" required="" minlength="2" class="valid"></td>
+            </tr>
+            <tr>
+                <th style="width:180px;"><?php echo trans('frontend_texts.lastname'); ?></th>
+                <td><input type="text" value="<?php echo $profile['lastname']; ?>" id="lastname" name="lastname" required="" minlength="2" class="valid"></td>
+            </tr>
+            <tr>
+                <th><?php echo e(Lang::get('confide::confide.e_mail')); ?></th>
+                <td><?php echo $profile['email']; ?><br>
+                <span><?php echo Lang::get('user_texts.note_change_email'); ?></span></td>
+            </tr>
+            <tr>
+                <th><?php echo Lang::get('user_texts.autologout'); ?></th>
+                <td>
+                    <select name="timeout" class="valid">
+                        <option value="45 minutes" <?php if(trim($profile['timeout'])=='45 minutes'): ?> selected <?php endif; ?>>Default (45 Minutes)</option>
+                        <option value="1 hour" <?php if(trim($profile['timeout'])=='1 hour'): ?> selected <?php endif; ?>>1 Hour</option>
+                        <option value="2 hours" <?php if(trim($profile['timeout'])=='2 hours'): ?> selected <?php endif; ?>>2 Hours</option>
+                        <option value="6 hours" <?php if(trim($profile['timeout'])=='6 hours'): ?> selected <?php endif; ?>>6 Hours</option>
+                        <option value="12 hours" <?php if(trim($profile['timeout'])=='12 hours'): ?> selected <?php endif; ?>>12 Hours</option>
+                        <option value="24 hours" <?php if(trim($profile['timeout'])=='24 hours'): ?> selected <?php endif; ?>>24 Hours</option>
+                    </select><br>
+                <span><?php echo Lang::get('user_texts.note_auto_logout'); ?></span></td>
+            </tr>
+        </tbody>
+    </table>
+    <h3><?php echo Lang::get('user_texts.your_pass'); ?></h3>
+    <?php echo Lang::get('user_texts.note_change_pass'); ?><br><br>
+    <table class="table register">
+        <tbody>
+            <tr>
+                <th style="width:180px;"><?php echo e(Lang::get('confide::confide.password')); ?></th>
+                <td><input type="password" autocomplete="off" value="" id="password" name="password"><br>
+                <span><?php echo Lang::get('user_texts.note_input_pass'); ?></span></td>
+            </tr>
+            <tr>
+                <th><?php echo e(Lang::get('confide::confide.password_confirmation')); ?></th>
+                <td><input type="password" autocomplete="off" value="" id="password2" name="password2"><br>
+                <span><?php echo Lang::get('user_texts.note_input_pass2'); ?></span></td>
+            </tr>
+        </tbody>
+    </table>    
+    <br><br>   
+   <button type="submit" class="btn btn-primary"><?php echo Lang::get('user_texts.update_profile'); ?></button>
+    <br><br>
+    </form>
+</div>
+<?php $__env->startSection('script.footer'); ?>
+@parent
+ <?php echo HTML::script('assets/js/jquery.validate.min.js'); ?>
+    <script type="text/javascript">
+        $(document).ready(function() {           
+            $("#registerForm").validate({
+                rules: {
+                    firstname: "required",
+                    lastname: "required",
+                    password: {
+                        required: false,
+                        minlength: 8
+                    },
+                    password2: {
+                        required: false,
+                        minlength: 8,
+                        equalTo: "#password"
+                    }
+                },
+                messages: {
+                    firstname: "<?php echo Lang::get('user_texts.please_add_firstname') ?>",
+                    lastname: "<?php echo Lang::get('user_texts.please_add_lastname') ?>",
+                    password: {
+                        required: "<?php echo Lang::get('user_texts.please_add_password') ?>",
+                        minlength: "<?php echo Lang::get('user_texts.note_length_pass') ?>"
+                    },
+                    confirm_password: {
+                        required: "<?php echo Lang::get('user_texts.please_add_confirmpassword') ?>",
+                        minlength: "<?php echo Lang::get('user_texts.note_length_pass') ?>",
+                        equalTo: "<?php echo Lang::get('user_texts.please_add_samepassword') ?>"
+                    }
+                }
+             });
+       });
+    </script>
+<?php $__env->stopSection(); ?>

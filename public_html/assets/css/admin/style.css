@@ -1,0 +1,87 @@
+body{background: #fff url("images/back.png") repeat;}
+td label.error {
+    display: inline-block;
+    margin: 6px 0 0;
+}
+label.error {
+    color: #990000;
+    display: block;
+    margin-bottom: 10px;
+}
+#container, #footer-content {
+width: 960px;
+margin: 0 auto;
+}
+.blue{color: #006dcc;}
+/*header*/
+#header-content {
+	display: inline-block;
+	width: 100%;
+	color: #fff;	
+	position: fixed;
+	top: 0;
+	background-color: #0993d3;
+	background: -webkit-gradient(linear, left top, left bottom, from(#1aaef3), to(#0993d3));
+	background: -webkit-linear-gradient(top, #1aaef3, #0993d3);
+	background: -moz-linear-gradient(top, #1aaef3, #0993d3);
+	background: -ms-linear-gradient(top, #1aaef3, #0993d3);
+	background: -o-linear-gradient(top, #1aaef3, #0993d3);
+	background: linear-gradient(top, #1aaef3, #0993d3);
+	z-index: 100;
+}
+.sf-menu a{
+	color: #fff;
+	border:0;
+}
+.sf-menu a:hover{color: #fff; text-decoration: none;}
+#header-content .sf-menu li, #header-content .sf-menu ul li, #header-content .sf-menu ul ul li {
+	background-color: #0993d3;
+	background: -webkit-gradient(linear, left top, left bottom, from(#1aaef3), to(#0993d3));
+	background: -webkit-linear-gradient(top, #1aaef3, #0993d3);
+	background: -moz-linear-gradient(top, #1aaef3, #0993d3);
+	background: -ms-linear-gradient(top, #1aaef3, #0993d3);
+	background: -o-linear-gradient(top, #1aaef3, #0993d3);
+	background: linear-gradient(top, #1aaef3, #0993d3);
+}
+#header-content .sf-menu li:hover,
+#header-content .sf-menu li.sfHover{background:#098FCE;}
+#header-content .sf-menu{margin-bottom: 0;}
+
+/*Footer*/
+#footer-content {
+	display: inline-block;
+	margin: 0 auto;
+	text-align: left;
+}
+
+#footer {
+text-align: center;
+padding: 10px 0;
+border-top: 1px solid #ccc;
+}
+/*container*/
+#container {
+	margin-top: 50px;
+}
+	.form-horizontal .control-label{text-align: left;}
+	#container .table-striped th{background:#EBEBEB;}
+	.form-group {
+	margin-bottom: 10px;
+}
+textarea{width:auto;}
+#messages .success{color: #468847;}
+#messages .error{color: #b94a48;}
+.status{font-weight:bold; color: #006dcc;}
+div.filter-time {
+	margin-bottom: 10px;
+}
+div.filter-time > label{
+	width: 10%;
+	float: left;
+}
+i.icon-remove.icon-white.user_removed {
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	background-color: #960707;
+}

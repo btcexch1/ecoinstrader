@@ -1,0 +1,24 @@
+<h3><?php echo e(trans('texts.recent_market_history')); ?></h3>  
+<p class="show-all"><a href="<?=url('page/all-trades')?>">+ <?php echo e(trans('texts.show_all_recent_market_history')); ?><i class="icon-arrow-right-5"></i></a></p>
+<div id="trade_histories_<?php echo e(Session::get('market_id')); ?>" class="scrolltable">
+  <table class="table striped hovered">
+    <thead>
+      <tr><th><?php echo e(trans('texts.date')); ?></th><th><?php echo e(trans('texts.type')); ?></th><th><?php echo e(trans('texts.price')); ?> 1 <?php echo e($coinmain); ?></th><th><?php echo trans('texts.total'); ?> <?php echo e($coinmain); ?></th><th><?php echo trans('texts.total'); ?> <?php echo e($coinsecond); ?></th></tr> 
+    </thead>
+    <tbody>
+      <tr style="display:none" class="header-tb"><td colspan="5"></td></tr>
+      <?php foreach($trade_history as $history): ?>     
+        <tr id="trade-<?php echo $history->id; ?>" class="order">
+          <td><span><?php echo $history->created_at; ?></span></td><!-- title="26 sec. ago" -->
+          <?php if($history->type == 'sell'): ?>          
+            <td><b style="color:red"><?php echo ucwords($history->type); ?></b></td>            
+          <?php else: ?>          
+            <td><b style="color:green"><?php echo ucwords($history->type); ?></b></td>            
+          <?php endif; ?>          
+          <td><?php echo e(sprintf('%.8f',$history->price)); ?></td><td><?php echo e(sprintf('%.8f',$history->amount)); ?></td>
+          <td><?php echo e(sprintf('%.8f',$history->price*$history->amount)); ?></td>
+        </tr> 
+      <?php endforeach; ?>  
+    </tbody>
+  </table>
+</div>

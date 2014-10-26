@@ -1,0 +1,257 @@
+<!-- Security -->
+<?php $__env->startSection('title'); ?>
+<?php echo e(trans('texts.withdraw')); ?>
+<?php $__env->stopSection(); ?>
+<div id="form_deposit">	
+	<div class="panel">
+	    <div class="panel-header bg-lightBlue fg-white"><?php echo e(trans('texts.withdraw')); ?> - <?php echo $current_coin; ?></div>
+	    <div class="panel-content">
+	    	<?php if( Session::get('error') ): ?>
+		        <div class="notice marker-on-bottom bg-darkRed fg-white">        	
+		            <?php if( is_array(Session::get('error')) ): ?>
+		                <?php echo head(Session::get('error')); ?>
+		            <?php else: ?>
+		            	<?php echo Session::get('error'); ?>
+		            <?php endif; ?>
+		        </div>
+		    <?php endif; ?>
+
+		    <?php if( Session::get('success') ): ?>
+		        <div class="notice marker-on-bottom fg-white">            
+		            <?php echo Session::get('success'); ?>
+		        </div>
+		    <?php endif; ?>  
+		    <?php if( Session::get('notice') ): ?>
+		        <div class="notice marker-on-bottom bg-amber fg-white">            
+		            <?php echo Session::get('notice'); ?>
+		        </div>
+		    <?php endif; ?> 
+		    <?php if($wallet->enable_withdraw): ?>
+		    	<?php if(!$wallet->is_moneypaper): ?>
+			    	<form id="wihtdrawForm" class="form-horizontal" method="POST" action="<?php echo e(Confide::checkAction('UserController@doWithdraw') ?: URL::to('/user/withdraw')); ?>">
+				    	<div style="color:red"><?php if(isset($error_message)): ?> <?php echo $error_message; ?> <?php endif; ?></div>	    
+					    <!-- <div class="warning box">Once submitted, all requests <strong>MUST</strong> be confirmed via email. Please only contact support if you have not received the confirmation email.</div> -->
+					    <p><?php echo Lang::get('user_texts.your_current_available'); ?> <?php echo $current_coin; ?> <?php echo Lang::get('user_texts.balance'); ?>: <strong><?php echo $balance; ?></strong></p> 				    
+				    	<table class="table striped noborder">
+				    		<tr>
+				    			<td><?php echo $current_coin; ?> <?php echo Lang::get('user_texts.amount'); ?></td>
+				    			<td>
+				    				<div class="input-control text input-sm">
+									    <input type="text" class="form-control" id="amount" name="amount" required="">
+									    <button class="btn-clear"></button>
+									</div>
+									</td>
+				    		</tr>
+				    		<tr>
+				    			<td><?php echo Lang::get('user_texts.withdraw_fee'); ?> Withdraw Fee</td><td><b id="withdraw_fee" class="control-label"><?php echo $fee_withdraw; ?></b> <b><?php echo e($current_coin); ?></b></td>
+				    		</tr>
+				    		<tr>
+				    			<td><?php echo e(trans('texts.net_total')); ?></td><td><b id="net_total" class="control-label">0.00</b> <b><?php echo e($current_coin); ?></b></td>
+				    		</tr>
+				    		<tr>
+				    			<td><?php echo e(trans('user_texts.receive_address')); ?></td>
+				    			<td>
+				    				<div class="input-control text">
+									    <input type="text" id="address" name="address" required="">
+									    <button class="btn-clear"></button>
+									</div>
+				    			
+				    		</td></tr>
+				    		<tr><td><?php echo e(trans('user_texts.confirm_pass')); ?></td>
+				    			<td>    				
+				    				<div class="input-control text input-sm">
+									    <input type="password" class="form-control" id="inputPassword" name="password" required="">	
+									    <button class="btn-clear"></button>
+									</div>
+				    			</td></tr>
+				    		<tr><td colspan="2">
+							  	<strong><?php echo e(trans('user_texts.note_withdraw_1')); ?></strong><?php echo e(trans('user_texts.note_withdraw_2')); ?> 
+							    <div class="col-lg-10">	 
+							      <input type="hidden" name="fee_withdraw" id="fee_withdraw" value="<?php echo $fee_withdraw; ?>"> 	      
+							      <input type="hidden" name="wallet_id" id="wallet_id" value="<?php echo $wallet_id; ?>">		      
+							  </div>
+							</td></tr>
+				    	</table>
+						  <button type="submit" class="button btn-primary"><?php echo trans('texts.withdraw'); ?></button>
+					</form>	
+					<?php $__env->startSection('script.footer'); ?>
+					@parent
+					<?php echo HTML::script('assets/js/jquery.validate.min.js'); ?>
+					   	<script type="text/javascript">	
+					   		$(document).ready(function() { 
+					   		$('#amount').keyup(function(event) {
+							    var amount =parseFloat( $('#amount').val());		    
+							    var fee = parseFloat($('#fee_withdraw').val());
+							    var total = amount-fee;		   
+							    $('#net_total').html(total.toFixed(8));
+							});           
+					            $("#wihtdrawForm").validate({
+					                rules: {				                	
+					                	amount: {
+									      required: true,
+									      number: true
+									    }                   
+					                },
+					                messages: {
+					                    amount: {
+					                        required: "Please enter amount.",
+					                        number: "Please enter a number."
+					                    },
+					                    address: "Please enter receive address.",
+					                    password: {
+					                        required: "Please provide a password.",                        
+					                    }
+					                },
+					                submitHandler: function(form) {
+					                    $('button[type=submit]').hide();
+					                    form.submit();
+					                }
+					             }); 
+					       });
+					</script>
+					<?php $__env->stopSection(); ?>
+				<?php else: ?>
+					<div style="color:red" id="message_errors"></div>				
+				 	<form id="wihtdrawFormUSD" class="form-horizontal" method="POST" action="<?php echo e(URL::to('/user/notify-withdraw')); ?>">
+				 		<p><?php echo Lang::get('user_texts.your_current_available'); ?> <?php echo $current_coin; ?> <?php echo Lang::get('user_texts.balance'); ?>: <strong><?php echo $balance; ?></strong></p>
+				 		<label><?php echo Lang::get('user_texts.method_payment'); ?></label>
+						<div class="input-control select size3">
+							<select name="transaction_id" id="method_deposit">
+								<?php foreach($method_withdraws as $method): ?>
+								<option data-id="<?php echo $method->id; ?>" data-min="<?php echo $method->wmin; ?>" data-des="<?php echo $method->wdes; ?>" data-fee="<?php echo $method->wfee; ?>"  data-minfee="<?php echo $method->wminfee; ?>" value="<?php echo $method->wname; ?> - fee <?php echo $method->wfee; ?>%"><?php echo $method->wname; ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+						<label></label>
+						<div class="input-control text">
+							<div id="method-desc" style="font-style: italic;"></div>
+						</div>
+						<label><?php echo Lang::get('user_texts.your_info_account'); ?></label>
+						<div class="input-control text">
+						    <textarea id="to_address" name="to_address" required="" cols="60" rows="5"></textarea>
+						    <p class="text-small"><em><?php echo Lang::get('user_texts.note_your_account_withdraw'); ?></em></p>
+						</div>	
+						<label><?php echo Lang::get('user_texts.method_fee'); ?>: <span id="show_fee_withdraw"></span> %</label>					
+						<label><?php echo Lang::get('user_texts.method_min_fee'); ?>: <span id="show_min_fee_withdraw"></span> <?php echo $current_coin; ?></label>
+										
+						<label><?php echo $current_coin; ?> <?php echo Lang::get('user_texts.amount'); ?></label>
+						<div class="input-control text size3">
+							<input type="text" id="amount" name="amount" required="">
+						</div>
+						<label><?php echo $current_coin; ?> <?php echo Lang::get('user_texts.you_will_recieve'); ?></label>
+						<div class="input-control text size3">
+							<input type="text" id="receive_amount" name="receive_amount" readonly> 
+						</div>
+						<label><?php echo e(trans('user_texts.confirm_pass')); ?></label>
+						<div class="input-control text size3">
+						    <input type="password" id="inputPassword" name="password" required="">	
+						    <button class="btn-clear"></button>
+						</div><br>
+						<div class="input-control text size3">						
+							<input type="hidden" name="method_id" id="method_id" value="0" readonly>
+							<input type="hidden" name="wallet_id" id="wallet_id" value="<?php echo $wallet_id; ?>">
+							<button id="checkamount" type="submit" class="button btn-primary"><?php echo trans('texts.withdraw'); ?></button>
+						 </div>
+					</form>
+					<?php $__env->startSection('script.footer'); ?>
+					@parent
+					<?php echo HTML::script('assets/js/jquery.validate.min.js'); ?>
+					   	<script type="text/javascript">	
+					   		function checkAmount(){
+					   			$('#message_errors').html('');
+					   			var amount =parseFloat( $('#amount').val());
+					   			var method_deposit = document.getElementById("method_deposit");
+								var method = method_deposit.options[method_deposit.selectedIndex];	
+								var amount_min = parseFloat(method.getAttribute('data-min'));				    	   
+							    console.log('amount_min: ', amount_min);						    
+							    if(amount<amount_min){
+							    	$('#message_errors').html("Amount must be greater than "+amount_min);
+							    	return false;
+							    }else {
+							    	var fee = parseFloat(method.getAttribute('data-fee'));
+							    	var min_fee = parseFloat(method.getAttribute('data-minfee'));
+							    	var amount_fee = parseFloat((fee*amount)/100);
+								    if(amount_fee<min_fee) amount_fee=min_fee;
+								    if(amount<amount_fee){
+								    	$('#message_errors').html("Amount must be greater than fee (fee: "+amount_fee+")");
+							    		return false;
+								    }
+							    }
+							    return true;
+					   		}
+
+					   		function initData(){
+					   			var method_deposit = document.getElementById("method_deposit");
+								var method = method_deposit.options[method_deposit.selectedIndex];	
+								var amount_min = parseFloat(method.getAttribute('data-min'));
+								var min_fee = parseFloat(method.getAttribute('data-minfee'));
+								var fee = parseFloat(method.getAttribute('data-fee'));
+								var description = method.getAttribute('data-des');
+								var method_id = method.getAttribute('data-id');
+							    
+							    $('#show_fee_withdraw').html(fee);						    
+							    $('#show_min_fee_withdraw').html(min_fee);
+							    $('#method-desc').html(description);	
+							    $('#method_id').val(method_id);			    
+					   		}
+					   		$(document).ready(function() {
+					   			initData(); 			   		
+								$('#amount, #method_deposit').change(function(event) {
+									checkAmount();
+								});
+								$('#method_deposit').change(function(event) {
+									initData();
+								});  
+								$('#amount').keyup(function(event) {
+								    var amount =parseFloat( $('#amount').val());
+								    var method_deposit = document.getElementById("method_deposit");
+									var method = method_deposit.options[method_deposit.selectedIndex];		    
+								    var fee = parseFloat(method.getAttribute('data-fee'));
+								    var min_fee = parseFloat(method.getAttribute('data-minfee'));
+								    var amount_fee = parseFloat((fee*amount)/100);
+								    if(amount_fee<min_fee) amount_fee=min_fee;
+								    var total = amount-amount_fee;		   
+								    $('#receive_amount').val(total);
+								});         
+					            $("#wihtdrawFormUSD").validate({
+					                rules: {
+					                	transaction_id: "required",
+					                	to_address: "required",
+					                	password: "required",
+					                	amount: {
+									      required: true,
+									      number: true,						      
+									    },
+
+					                },
+					                messages: {
+					                    amount: {
+					                        required: "Please enter amount.",
+					                        number: "Please enter a number."
+					                    },
+					                    transaction_id: "Please choose a method.",
+					                    to_address: "Please enter your account information.",
+					                    password: {
+					                        required: "Please provide a password.",                        
+					                    }
+					                },
+					                submitHandler: function(form) {
+					                	if(checkAmount()){
+					                		$('button[type=submit]').hide();
+					                    	form.submit();
+					                	}
+					                    
+					                }
+					             });           
+					       });
+					</script>
+					<?php $__env->stopSection(); ?>
+				<?php endif; ?>	
+			<?php else: ?>
+				<div class="notice marker-on-bottom bg-amber fg-white">            
+		            <?php echo Lang::get('user_texts.notify_withdraw_disable',array('coin'=>$wallet->name)); ?>
+		        </div>
+			<?php endif; ?>		
+	    </div>
+	</div>    
+</div>

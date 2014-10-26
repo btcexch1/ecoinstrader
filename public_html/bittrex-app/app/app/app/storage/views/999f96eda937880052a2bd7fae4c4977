@@ -1,0 +1,86 @@
+<?php $__env->startSection('content'); ?>	
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<h2><?php echo trans('admin_texts.trade_histories'); ?></h2>
+<?php
+$query_string = '';
+foreach (Request::query() as $key => $value) {
+    $query_string .= $key."=".$value."&";
+}
+$query_string = trim($query_string,'&');
+?>
+<form class="form-inline" method="get" action="<?php echo e(URL::to('/admin/manage/trade-histories')); ?>">        
+    <label><?php echo e(trans('texts.market')); ?></label>        
+    <select id="pair" style="margin-right: 20px;" name="market">
+        <option value="" <?php if(isset($_GET['market'])  && $_GET['market'] == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+        <?php foreach($markets as $key=> $market): ?>
+            <option value="<?php echo $market['id']; ?>" <?php if(isset($_GET['market']) && $_GET['market']==$market['id']): ?> selected <?php endif; ?>><?php echo strtoupper($market['wallet_from'].'/'.$market['wallet_to']); ?></option>
+        <?php endforeach; ?>
+    </select>        
+    <label><?php echo e(trans('texts.type')); ?></label>
+    <select id="type" name="type" style="margin-right: 20px;">
+        <option value="" <?php if(isset($_GET['type'])  && $_GET['type'] == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+        <option value="sell" <?php if(isset($_GET['type']) && $_GET['type'] == 'sell'): ?> selected <?php endif; ?>><?php echo trans('texts.sell'); ?></option>
+        <option value="buy" <?php if(isset($_GET['type']) && $_GET['type'] == 'buy'): ?> selected <?php endif; ?>><?php echo trans('texts.buy'); ?></option>
+    </select>  
+    <label><?php echo e(trans('admin_texts.view_in')); ?></label>
+    <select id="type" name="time" style="margin-right: 20px;">
+        <option value="" <?php if(isset($_GET['time'])  && $_GET['time'] == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+        <option value="today" <?php if(isset($_GET['time']) && $_GET['time'] == 'today'): ?> selected <?php endif; ?>><?php echo trans('admin_texts.today'); ?></option>
+        <option value="thisweek" <?php if(isset($_GET['time']) && $_GET['time'] == 'thisweek'): ?> selected <?php endif; ?>><?php echo trans('admin_texts.thisweek'); ?></option>
+        <option value="thismonth" <?php if(isset($_GET['time']) && $_GET['time'] == 'thismonth'): ?> selected <?php endif; ?>><?php echo trans('admin_texts.thismonth'); ?></option>
+    </select>       
+    <button type="submit" class="btn btn-primary" name="do_filter"><?php echo trans('texts.filter'); ?></button>
+    <!-- <a href=""><button type="button" class="btn btn-default" name="do_filter" >Reset</button></a> -->
+</form>
+<div id="messages"></div>
+<table class="table table-striped" id="list-fees">
+	<tr>
+	 	<th><?php echo trans('admin_texts.trade_id'); ?></th>
+	 	<th><?php echo e(trans('texts.market')); ?></th>
+	 	<th><?php echo trans('admin_texts.seller_id'); ?></th>
+	 	<th><?php echo trans('admin_texts.buyer_id'); ?></th>
+	 	<th><?php echo trans('admin_texts.type'); ?></th>	 	
+	 	<th><?php echo trans('admin_texts.date'); ?></th>
+	 	<th><?php echo trans('admin_texts.price'); ?></th>
+	 	<th><?php echo trans('admin_texts.amount'); ?></th>
+	 	<th><?php echo trans('admin_texts.total'); ?></th>
+	 	<th><?php echo trans('admin_texts.sell_fee'); ?></th>
+	 	<th><?php echo trans('admin_texts.buy_fee'); ?></th>
+	</tr> 	
+
+	<?php foreach($tradehistories as $trade_history): ?>
+        <?php if(isset($markets[$trade_history->market_id])): ?>
+            <tr>
+            	<td><?php echo $trade_history->id; ?></td>
+                <td><?php echo $markets[$trade_history->market_id]['wallet_from'].'/'.$markets[$trade_history->market_id]['wallet_to']; ?></td>
+                <td><?php if(empty($trade_history->seller)): ?> <i class="icon-remove icon-white user_removed" title="<?php echo Lang::get('admin_texts.user_was_deleted'); ?>"></i> <?php else: ?><?php echo $trade_history->seller; ?> <?php endif; ?></td>
+                <td><?php if(empty($trade_history->buyer)): ?> <i class="icon-remove icon-white user_removed" title="<?php echo Lang::get('admin_texts.user_was_deleted'); ?>"></i> <?php else: ?><?php echo $trade_history->buyer; ?> <?php endif; ?></td>
+                <?php if($trade_history->type == 'sell'): ?>          
+                    <td><b style="color:red"><?php echo ucwords($trade_history->type); ?></b></td>            
+                <?php else: ?>          
+                    <td><b style="color:green"><?php echo ucwords($trade_history->type); ?></b></td>            
+                 <?php endif; ?>
+                 <td><?php echo $trade_history->created_at; ?></td>
+                <td><?php echo sprintf('%.8f',$trade_history->price); ?></td>
+                <td><?php echo sprintf('%.8f',$trade_history->amount); ?></td>
+                <td><?php echo sprintf('%.8f',$trade_history->amount*$trade_history->price); ?></td>
+                <td><?php echo sprintf('%.8f',$trade_history->fee_sell); ?></td>
+                <td><?php echo sprintf('%.8f',$trade_history->fee_buy); ?></td>
+            </tr>
+        <?php endif; ?>
+    <?php endforeach; ?>  
+</table>
+<div id="pager"></div>
+<script type='text/javascript'>
+    var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){
+            return "<?php echo URL::to('admin/manage/trade-histories'); ?>"+'/'+page+'<?php echo "?".$query_string ?>'; 
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

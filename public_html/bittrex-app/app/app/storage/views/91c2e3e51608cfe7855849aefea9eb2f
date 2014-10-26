@@ -1,0 +1,110 @@
+<!-- Trade History -->
+<?php $__env->startSection('title'); ?>
+<?php echo e(trans('Trade history')); ?>
+<?php $__env->stopSection(); ?>
+<?php
+$query_string = '';
+foreach (Request::query() as $key => $value) {
+    if($key!='pager_page')
+    $query_string .= $key."=".$value."&";
+}
+$query_string = trim($query_string,'&');
+if(!empty($query_string)) $query_string = "&".$query_string;
+?>
+<div id="trade_history">
+    <h2><?php echo e(trans('Trade history')); ?> <?php if(isset($current_coin)): ?> <?php echo ' - '.$current_coin; ?> <?php endif; ?></h2>
+    <form class="form-inline" method="GET" action="<?php echo Request::url(); ?>">
+        <?php if($filter==''): ?>           
+            <div class="input-control text size1">
+                <label><?php echo e(trans('texts.market')); ?></label>
+            </div>
+            <div class="input-control text size2">
+                <select id="pair" style="margin-right: 20px;" name="market">
+                   <option value="" <?php if(isset($_GET['market']) == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+                    <?php foreach($markets as $key=> $market): ?>
+                        <option value="<?php echo $market['id']; ?>" <?php if(isset($_GET['market']) && $_GET['market']==$market['id']): ?> selected <?php endif; ?>><?php echo strtoupper($market['wallet_from'].'/'.$market['wallet_to']); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        <?php endif; ?>        
+         <div class="input-control text size1">
+            <label><?php echo e(trans('texts.type')); ?></label>
+        </div>
+        <div class="input-control text size2">
+            <select id="type" name="type" style="margin-right: 20px;">
+                <option value="" <?php if(isset($_GET['type']) == ''): ?> selected <?php endif; ?>><?php echo trans('texts.all'); ?></option>
+                <option value="sell" <?php if(isset($_GET['type']) && $_GET['type'] == 'sell'): ?> selected <?php endif; ?>><?php echo trans('texts.sell'); ?></option>
+                <option value="buy" <?php if(isset($_GET['type']) && $_GET['type'] == 'buy'): ?> selected <?php endif; ?>><?php echo trans('texts.buy'); ?></option>
+            </select>  
+        </div>
+        <!-- <label><?php echo e(trans('texts.i_am')); ?></label>
+        <select id="type" name="i_am" style="margin-right: 20px;">
+            <option value="" selected="selected"><?php echo trans('texts.all'); ?></option>
+            <option value="seller_id"><?php echo trans('texts.seller'); ?></option>
+            <option value="buyer_id"><?php echo trans('texts.buyer'); ?></option>
+        </select> -->
+        <div class="input-control text size1">
+            <button type="submit" class="btn btn-primary" name="do_filter"><?php echo trans('texts.filter'); ?></button>
+        </div>
+    </form>
+    <table class="table striped hovered">
+        <thead>
+        <tr>
+            <th><?php echo e(trans('texts.market')); ?></th>
+            <th><?php echo e(trans('texts.type')); ?></th>
+            <th><?php echo e(trans('texts.price')); ?></th>
+            <th><?php echo e(trans('texts.amount')); ?></th>
+            <th><?php echo e(trans('texts.total')); ?></th>
+            <th><?php echo e(trans('texts.fee')); ?></th>
+            <th><?php echo e(trans('texts.net_total')); ?></th>
+            <th><?php echo e(trans('texts.date')); ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach($tradehistories as $trade_history): ?>
+            <?php if(isset($markets[$trade_history->market_id])): ?>
+            <tr>
+                <td><?php echo $markets[$trade_history->market_id]['wallet_from'].'/'.$markets[$trade_history->market_id]['wallet_to']; ?></td>
+                <?php if($trade_history->type == 'sell'): ?>          
+                    <td><b style="color:red"><?php echo ucwords($trade_history->type); ?></b></td>            
+                <?php else: ?>          
+                    <td><b style="color:green"><?php echo ucwords($trade_history->type); ?></b></td>            
+                 <?php endif; ?>
+                <td><?php echo sprintf('%.8f',$trade_history->price); ?></td>
+                <td><?php echo sprintf('%.8f',$trade_history->amount); ?></td>
+                <td><?php echo sprintf('%.8f',$trade_history->amount*$trade_history->price); ?></td>
+                <?php if($trade_history->seller_id==$user_id): ?> 
+                    <td><?php echo sprintf('%.8f',$trade_history->fee_sell); ?></td>
+                    <td><?php echo sprintf('%.8f',($trade_history->amount*$trade_history->price)+$trade_history->fee_sell); ?></td>
+                <?php else: ?> 
+                    <td><?php echo sprintf('%.8f',$trade_history->fee_buy); ?></td>
+                    <td><?php echo sprintf('%.8f',($trade_history->amount*$trade_history->price)+$trade_history->fee_buy); ?></td>
+                <?php endif; ?>
+                <td><?php echo $trade_history->created_at; ?></td>
+            </tr>
+            <?php endif; ?>
+        <?php endforeach; ?>        
+        </tbody>
+    </table>
+    <div id="pager"></div>
+</div>
+<?php $__env->startSection('script.footer'); ?>
+@parent
+<?php echo HTML::script('assets/js/bootstrap-paginator.js'); ?>
+<script type="text/javascript">
+var options = {
+        currentPage: <?php echo $cur_page ?>,
+        totalPages: <?php echo $total_pages ?>,
+        alignment:'right',
+        pageUrl: function(type, page, current){
+            <?php
+            if(empty($filter)){ ?>
+            return "<?php echo URL::to('user/profile/trade-history'); ?>"+'?pager_page='+page+'<?php echo $query_string ?>'; 
+        <?php }else{ ?> return "<?php echo URL::to('user/profile/trade-history').'/'.$filter; ?>"+'?pager_page='+page+'<?php echo $query_string ?>'; 
+         <?php } ?>
+        }
+    }
+    $('#pager').bootstrapPaginator(options);
+    $('#pager').find('ul').addClass('pagination');
+</script>
+<?php $__env->stopSection(); ?>
